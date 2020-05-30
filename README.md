@@ -1,37 +1,42 @@
-## Welcome to GitHub Pages
+#### Online presentation of TypeScript features for a rowing session at Fincons Group AG.
 
-You can use the [editor on GitHub](https://github.com/ova2/typescript-rowing-session/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+#### Homepage: https://ova2.github.io/typescript-rowing-session/
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+__Table of Contents__
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/ova2/typescript-rowing-session/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+* Introduction
+* Relationship between TypeScript and JavaScript
+* Code generation
+* Learning TypeScript Playground
+* Basic types
+  * Primitive types
+  * Types _void_, _null_ and _undefined_,
+  * Difference between _any_, _unknown and _never_
+  * Enums
+  * Interfaces
+  * Classes
+* Public, private, and protected modifiers
+* Type assertions
+* Type inference
+* Meet TypeScript compiler options
+  * noImplicitAny
+  * strictNullChecks
+* Optional and readonly properties
+* Excess property checks
+* Structural typing
+* Difference between type and interface
+* Functions
+  * function overloading
+  * _this_ in functions and callbacks
+* _keyof_ operator
+* Unions and intersection types
+* Advanced types
+  * type guards
+  * index and mapped types
+  * conditional types
+  * Utility types
+* Generics
+* Decorators
+* Mixins
+* Types declarations
+* Reference sources
