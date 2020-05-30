@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Arrow and block-level functions</title>
+    <meta charset="utf-8">
+    <script src="//gnab.github.io/remark/downloads/remark-latest.min.js"></script>
+    <style>
+        @import url(//fonts.googleapis.com/css?family=Droid+Serif);
+        @import url(//fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    </style>
+    <link rel="stylesheet" type="text/css" href="../../css/slides.css">
+</head>
+<body>
+<textarea id="source">
+
+class: left, middle
+background-image: url(../../images/master-folie.png)
+
+.title[
+## Arrow and
+## block-level functions
+<br/>    
+### Oleg Varaksin
+#### ovaraksin@googlemail.com
+]
+    
+---
+    
+# Arrow functions. Syntax (1/4).
+    
+Arrow functions are anonymous functions that use an "arrow" __=>__. The syntax for arrow functions comes in many variations.
+All variations begin with _function arguments_, followed by the _arrow_, followed by the _body_ of the function.
+Both the arguments and the body can take different forms depending on usage.
+    
+__Single argument.__ When there is only one argument for an arrow function, it can be used directly without any parentheses.
+The expression to the right of the arrow is evaluated and returned.
+    
+ES6
+    
+```js
+[1, 2, 3].map(num => num * 2);
+```
+    
+ES5 equivalent
+    
+```js
+[1, 2, 3].map(function(num) {return num * 2;});
+```
+    
+No `return` keyword is required with a single statement.
+
+---
+    
+# Arrow functions. Syntax (2/4).
+    
+__More than one argument.__ You must include parentheses around the arguments if there are more than one argument.
+    
+ES6
+    
+```js
+var sum = (num1, num2) => num1 + num2;
+```
+    
+ES5 equivalent
+    
+```js
+var sum = function(num1, num2) {
+  return num1 + num2;
+};
+```
+    
+__No arguments.__ You must include parentheses if there are no arguments (the same syntax as for many arguments).
+Example of a function that does nothing:
+    
+```js
+var doNothing = () => {};
+```
+    
+---
+    
+# Arrow functions. Syntax (3/4).
+    
+__More than one statement in the body.__ If you want to have some other statements and not just an expression to return,
+you have to use brackets.
+    
+ES6
+    
+```js
+[1, 2, 3, 4].map(num => {
+  var multiplier = 2 + num;
+  return num * multiplier;
+});
+```
+    
+ES5 equivalent
+    
+```js
+[1, 2, 3, 4].map(function(num) {
+  var multiplier = 2 + num;
+  return num * multiplier;
+});
+```  
+    
+__Note:__ When a function has multiple arguments and multiple statements, there are no significant differences with
+a named function declaration.
+    
+---
+    
+# Arrow functions. Syntax (4/4).
+    
+There is a special case - an arrow function that wants to return an object literal `{...}`. In this case,
+the function body must wrap the literal in parentheses.
+
+ES6
+    
+```js
+var getSomeObject = id => ({key: id, value: "unknown"});
+```
+    
+ES5 equivalent
+      
+```js
+var getSomeObject = function(id) {
+  return {
+    key: id,
+    value: "unknown"
+  };
+};
+```
+    
+Wrapping the object literal in parentheses signals that the braces are an object literal instead of the function body.
+    
+---
+    
+# Arrow functions. IIFEs.
+    
+Immediately-invoked function expressions (IIFEs) allow you to define an anonymous function and call it immediately without saving a reference.
+    
+```js
+let person = function(message) {
+  return {
+    getGreeting: function() {
+      return message;
+    }
+  };
+}("Hell World!");
+```
+    
+To accomplish the same thing using arrow functions, you have to wrap the arrow function in parentheses.
+    
+```js
+let person = ((message) => {
+  return {
+    getGreeting: function() {
+      return message;
+    }
+  };
+})("Hell World!");
+```
+    
+---
+    
+# Arrow functions. Lexical binding (1/5).
+    
+The value of `this`, `super`, `arguments` inside of the arrow function is determined by the closest containing nonarrow function.
+In other words, the value of `this`, `super`, `arguments` is determined by where the arrow function is defined and not where it is used.
+It is said that arrow functions are bound to their _lexical scope_.
+    
+The value of `this` inside of the arrow function __can't be changed__ due to the lexical binding.
+It remains the same value throughout the entire lifecycle of the function.
+That also means, `.call` and `.apply` won't be able to change the value of `this`.
+    
+There are a few reasons for these differences. The lexical scope reduces errors and ambiguities inside of arrow functions.
+By doing so, JavaScript engines are better able to optimize arrow function execution.
+
+You can say goodbye to `var self = this` and similar hacks, such as using `.bind(this)`, to preserve the context
+within deeply nested methods.
+    
+---
+    
+# Arrow functions. Lexical binding (2/5).
+    
+ES5 with `self`
+    
+```js
+function Timer() {
+  var self = this;
+  self.seconds = 0;
+    
+  setInterval(function() {self.seconds++;}, 1000);
+}
+```    
+    
+ES6
+    
+```js
+function Timer() {
+  this.seconds = 0;
+    
+  setInterval(() => this.seconds++, 1000);
+}
+```
+    
+---
+    
+# Arrow functions. Lexical binding (3/5).
+    
+ES5 with `.bind(this)`
+    
+```js
+var SomeObject = {
+  init: function() {
+    document.addEventListener("click", (function(event) {
+      this.doSomething(event.type);
+    }).bind(this), false);
+  },
+
+  doSomething: function(type) {...}
+};
+```
+    
+ES6
+    
+```js
+var SomeObject = {
+  init: function() {
+    document.addEventListener("click",
+      event => this.doSomething(event.type), false);
+  },
+
+  doSomething: function(type) {...}
+};
+```
+    
+---
+    
+# Arrow functions. Lexical binding (4/5).
+    
+__Quiz__. Will this code work?
+    
+```js
+var controller = {
+  makeRequest: (...) => {
+    // ...
+    this.helper(...);
+  },
+    
+  helper: (...) => {
+    // ...
+  }
+};
+
+controller.makeRequest(..);
+```
+
+--
+    
+__Answer__: No.
+    
+The `this.helper` reference fails, because `this` here doesn't point to `controller`.
+It lexically inherits `this` from the surrounding scope and `this` in the surrounding scope points to the global scope!
+The global scope doesn't have the method `helper`.
+    
+---
+    
+# Arrow functions. Lexical binding (5/5).
+
+Arrow functions don't have their own `arguments` object, but it's possible to access the `arguments` object from a containing function.
+    
+```js
+function createArrowFunction() {
+  return () => arguments[0];
+}
+
+var arrowFunction = createArrowFunction(5);
+    
+console.log(arrowFunction());  // 5
+```
+    
+Last but not least: arrow function cannot be used as a constructor and will throw an error when used with `new`.
+    
+```js
+var MyType = () => {};
+    
+var object = new MyType();  // error
+```
+
+---
+    
+# Block-level functions. Strict mode.
+    
+In ECMAScript before 6, a function declaration inside of a block led to a different behavior in browsers,
+so it is considered a best practice to avoid function declarations inside of blocks.
+In ECMAScript 6, block-level functions were standardized.
+    
+```js
+"use strict";
+    
+if (true) {
+  console.log(typeof doSomething);  // "function"
+    
+  function doSomething() {
+    ...
+  }
+    
+  doSomething();
+}
+    
+console.log(typeof doSomething);  // "undefined"
+```
+    
+In the strict mode, block level functions are hoisted to the top of the block in which they are defined.
+Once the `if` block finished executing, `doSomething()` no longer exists.
+    
+---
+    
+# Block-level functions. Non strict mode.
+    
+ECMAScript 6 also allows block-level functions in non strict mode, but the behavior is slightly different.
+Instead of hoisting these declarations to the top of the block, they are hoisted to the containing function or global environment.
+    
+```js
+if (true) {
+  console.log(typeof doSomething);  // "function"
+    
+  function doSomething() {
+    ...
+  }
+    
+  doSomething();
+}
+    
+console.log(typeof doSomething);  // "function"
+```
+    
+In this example, `doSomething()` is hoisted into the global scope so that it still exists outside of the `if` block.
+ECMAScript 6 standardized this behavior to remove the incompatible browser behaviors that previously existed,
+so all ECMAScript 6 runtimes should behave in the same way.
+    
+---
+class: center, middle, inverse
+    
+# That's all folks, thanks for your attention!
+    
+.back[[Back to the homepage](http://ova2.github.io/es6-presentations/)]
+   
+Slideshow created with [remark](https://github.com/gnab/remark)
+    
+</textarea>
+<script>
+    var slideshow = remark.create({
+        highlightLanguage: 'javascript', highlightStyle: 'idea', navigation: {scroll: false}
+    });
+</script>
+</body>
+</html>
