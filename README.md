@@ -1,6 +1,6 @@
 #### Online presentation of TypeScript features for a rowing session at Fincons Group AG.
 
-#### Homepage: http://ova2.github.io/typescript-rowing-session/
+#### <a href="slides/index.html" target="_blank">Go to online slides</a>
 
 __Table of Contents__
 
