@@ -47,7 +47,7 @@ __Table of Contents__
 * Decorators
 * Mixins - composing partial behaviors
 * Types declarations
-* Best practice tips
+* Some best practice tips
   * Prefer unions of interfaces to interfaces of unions
   * Use async functions instead of callbacks
-  * Use Strategy Pattern
+  * When and how to use Strategy Pattern
