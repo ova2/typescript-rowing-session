@@ -15,7 +15,7 @@ __Table of Contents__
 * Basic types
   * Primitive types
   * Types _void_, _null_ and _undefined_,
-  * Difference between _any_, _unknown and _never_
+  * Difference between _any_, _unknown_ and _never_
   * Enums
   * Interfaces
   * Classes
