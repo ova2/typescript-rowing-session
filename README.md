@@ -8,7 +8,7 @@ __Table of Contents__
   * Main advantages of TypeScript
 * What is the best way to learn the TypeScript language?
 * Relationship between TypeScript and JavaScript
-* Code generation
+* Getting started with code generation
   * Installation
   * Output
 * Learning TypeScript Playground
@@ -36,6 +36,7 @@ __Table of Contents__
   * Function overloading
   * _this_ in functions and callbacks
 * Generics
+* Undestand type widening and narrowing
 * _keyof_ operator
 * Unions and intersection types
 * Advanced types
@@ -47,3 +48,6 @@ __Table of Contents__
 * Mixins - composing partial behaviors
 * Types declarations
 * Best practice tips
+  * Prefer unions of interfaces to interfaces of unions
+  * Use async functions instead of callbacks
+  * Use Strategy Pattern
