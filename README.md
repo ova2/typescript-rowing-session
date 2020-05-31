@@ -33,7 +33,7 @@ __Table of Contents__
   * Const assertions in literal expressions
 * Excess property checks
 * Functions
-  * function overloading
+  * Function overloading
   * _this_ in functions and callbacks
 * Generics
 * _keyof_ operator
@@ -44,6 +44,6 @@ __Table of Contents__
   * Conditional types
   * Utility types
 * Decorators
-* Mixins
+* Mixins - composing partial behaviors
 * Types declarations
 * Best practice tips
