@@ -25,6 +25,7 @@ background-image: url(../images/title-folie.jpeg)
 ???
 
 Ziel der Präsentation: Einführung in TypeScript zu geben, aber auch tiefe Einblicke hinter die Kulissen.
+Nach der heutigen Rowing-Session solltet ihr in der Lage sein, Software mit TypeScript zu schreiben.
     
 ---
     
@@ -41,25 +42,58 @@ Ziel der Präsentation: Einführung in TypeScript zu geben, aber auch tiefe Einb
     - <a href="https://packtpub.com/application-development/primefaces-cookbook-second-edition" target="_blank">PrimeFaces Cookbook</a>, Packt Publishing
     - <a href="https://packtpub.com/web-development/angular-ui-development-primeng" target="_blank">Angular UI Development with PrimeNG</a>, Packt Publishing
 
+???
+
+Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-Beispiele aus diesem Buch in dieser Präsentation verwenden.
+
 ---
 
 # Introduction
 
-Developed, Benefits, https://www.educba.com/typescript-vs-javascript/
+- TypeScript (http://typescriptlang.org) is a typed language and a super set of JavaScript.
+  It was designed and developed by Microsoft (Anders Hejlsberg).
+
+- TypeScript is an advanced JavaScript with optional static typing.
+  Static typing is optional because __every JavaScript program is also a TypeScript program__.
+
+- TypeScript code is not processed by browsers, it has to be translated into JavaScript by means of a TypeScript compiler.
+  This translation is called _compilation_ or _transpilation_.
+
+- TypeScript is an object oriented language with OO patterns.
+
+- It can be used on the client as well as server side.
 
 ???
 
-Notes
+- Wir werden noch gleich sehen, in welcher Beziehung TypeScript zu JavaScript steht.
+- Anders Hejlsberg ist der Vater von TS and ist massgebend an der Entwicklung beteiligt (kennt ihr ihn?).
+- zu OO: aber natürlich ist auch möglich, in TS funktional zu programmieren, ohne OOP.
+  TS ist ja ein Superset von JS, wo man normalerweise funtktional programmiert.
 
 ---
 
 # Main advantages of TypeScript
 
+- Types help you find and fix a lot of errors during development time. That means, you have less errors at runtime.
 
+- Many modern ECMAScript features are supported out of the box.
+  More features are expected according to the roadmap (https://github.com/Microsoft/TypeScript/wiki/Roadmap).
+
+- Great tooling and IDE support with IntelliSense makes the coding a pleasure.
+
+- It is easier to maintain and refactor a (large) TypeScript application than one written in untyped JavaScript.
+  It makes our code more consistence, clean and reusable.
+
+- Developers feel comfortable with TypeScript due to object-oriented programming patterns, such as interfaces, classes, enums, generics, and so on.
 
 ???
 
-Notes
+
+- Was heisst "supported out of the box"? TS kompiliert den Code so, dass auch die modernen Features unterstützt werden,
+ welche in eurem Browser (wo das Program läuft) nicht unterstützt sind.
+- Auto-completion in einem Projekt demonstrieren.
+- Für die Entwicklugn und Wartung von grossen Projekten ist es von Vorteil, TS zu wählen (als JS).
+- Fazit: Produktivität und die Entwicklungszeit steigen mit TypeScript.
 
 ---
 
@@ -84,17 +118,235 @@ _Additional reading_
 
 ![100%](../images/typescript-superset-js.png)
 
+- The _Typescript Language Specification_ says, every JavaScript program is also a TypeScript program.
+  Hence, a migration from JavaScript to TypeScript code is easily done.
+- Converse is not true: there are TypeScript programs which are not JavaScript programs.
+
 ???
 
-Notes
+- TS bringt die Typisierung und erweitert die Sprachkonstrukte von JS um zusätzliche Syntax für spezifizierte Typen,
+  wie beispielsweise Interfaces, Enums, usw.
 
 ---
 
-# Code generation. Installation.
+# Relationship between TypeScript and JavaScript
+
+Valid TypeScript program:
+
+```ts
+function greet(who: string) {
+  console.log('Hello', who);
+}
+```
+
+Result when it gets executed as an JavaScript program:
+
+```ts
+function greet(who: string) {
+                  ^
+SyntaxError: Unexpected token ':'
+```
+
+Reason:
+
+The `: string` is a type annotation that is specific to TypeScript.
+
+???
+
+Oben ist ein gültiges TS Programm. Wenn wir aber diesen Code als JS (z.B. in Browser) ausführen lassen,
+wird es ein SyntaxError gemeldet. Grund dafür ist : string ist eine type annotation, welche spezifisch zu TS ist.
 
 ---
 
-# Code generation. Output.
+# Relationship between TypeScript and JavaScript
+
+Per default, TypeScript compiler __emits output (JavaScript) even when any errors are reported__.
+
+Even if your JavaScript code doesn't throw any errors, it still might not do what you intend. Example:
+
+```js
+const states = [
+  {name: 'Alabama', capital: 'Montgomery'}
+  {name: 'Arizona', capital: 'Phoenix'}
+  // ...
+]
+for (const state of states) {
+  console.log(state.capitol);
+}
+```
+
+This is a valid JavaScript programm which will log:
+
+```
+undefined
+undefined
+```
+
+???
+
+- Wie werden aber sehen, dass man das Output von fehlerhaftem JavaScript-Code durch eine Compiler-Option unterbinden kann.
+Compiler-Optionen steuern den Kompilierprozess und man kann z.B. sagen "generiere kein JavaScript, wenn TS Compiler irgendwelche Fehler entdeckt hat".
+- Frage: was ist falsch in diesem Code?
+
+---
+
+# Relationship between TypeScript and JavaScript
+
+Let's compile the code with TypeScript.
+
+Even without adding type annotations, TypeScript type checker is able to spot the error and offer a helpful suggestion.
+
+```ts
+const states = [
+  {name: 'Alabama', capital: 'Montgomery'}
+  {name: 'Arizona', capital: 'Phoenix'}
+  // ...
+]
+for (const state of states) {
+  console.log(state.capitol);
+    // ~~~~ Property 'capitol' does not exist on type
+    //      '{ name: string; capital: string; }'.
+    //      Did you mean 'capital'?
+}
+```
+
+---
+
+# Relationship between TypeScript and JavaScript
+
+TypeScript's type system models the runtime behavior of JavaScript. This may result in some suprises if you' re coming from a laguage
+with stricter runtime checks. Example:
+
+```ts
+const x = 2 + '3';  // OK, type is string
+```
+
+The statement passes the type checker, even though they do produce runtime errors in many other languages.
+This does model the runtime behavior of JavaScript, where the the expression results in the string `"23"`.
+
+On the other hand, TypeScript compiler is stronger than the runtime behavior of JavaScript. Example:
+
+```ts
+const a = null + 7;  // Evaluates to 7 in JS
+    // ~~~~ Operator '+' cannot be applied to types ...
+```
+
+???
+
+- Das Laufzeit-Verhalten von JavaScript kann euch überraschen, wenn ihr bis jetzt in den strikten Programmiersprachen,
+  wie Java oder C# programmiert haben.
+
+---
+
+# Relationship between TypeScript and JavaScript
+
+If you program type checks, could it still throw an error at runtime?
+
+???
+
+Quiz: Wenn ein TS program das Type Checking überstanden hat, kann es eine Exception zur Laufzeit werfen? Was denkt ihr?
+
+--
+
+The answer is "yes". Here's an example:
+
+```ts
+const names = ['Alice', 'Bob'];
+console.log(names[2].toUpperCase());
+```
+
+When you run this, it throws
+
+```ts
+TypeError: Cannot read property 'toUpperCase' of undefined
+```
+
+TypeScript assumed the array access would be within bounds, but it was not. This assumption led to an error at runtime.
+
+---
+
+# Code generation
+
+TypeScript files use a __.ts__ (or __.tsx__) extension, rather than the __.js__ (or __.jsx__) extension of a JavaScript file.
+
+![100%](../images/transpiling.jpg)
+
+__Target__ signifies which target of JavaScript should be emitted from the given TypeScript.
+
+???
+
+Der Kompiler kompiliert / transpiliert den TS Code in JS Code. Dabei kann das Target via Compiler-Options angegeben werden.
+Nicht alle Browser unterstützen die modernen JavaScript Features. Mittels Target kann ich meine Browser-Platform auswählen,
+wo mein Program nachher läuft. Die wichtigsten Kompileroptionen und wo man sie angibt, werden wir noch kennenlernen.
+An dieser Stelle möchte ich aber dennoch ein Beispiel für die Target-Option geben.
+
+---
+
+# Code generation
+
+__target: es5__
+
+```ts
+() => null
+```
+
+will become
+
+```js
+function() {return null}
+```
+
+as ES5 doesn't have arrow functions.
+
+__target: es6__
+
+```ts
+() => null
+```
+
+will become
+
+```js
+() => null
+```
+
+as ES6 has arrow functions.
+
+---
+
+# Installation and Output
+
+You can install TypeScript via `npm` globally in the command line:
+
+```
+npm install -g typescript
+```
+
+Global installation means, the TypeScript compiler __tsc__ can be reached and used in any of your projects.
+Installed <a href="https:/nodejs.org">Node.js</a> and npm are presupposed. Node.js is the JavaScript runtime
+environment. npm is the package manager. It is shipped with Node.js, but can be installed separately as well.
+
+After that, you can transpile one or more __.ts__ files into __.js__ files by typing:
+
+```
+tsc some.ts another.ts
+```
+
+This will result in two files, `some.js` and `another.js`.
+
+TypeScript can also be installed locally (below your project root) by typing
+
+```
+npm install --save-dev typescript
+```
+
+It writes the typescript into your `package.json`.
+
+???
+
+- Globale Installation heisst, der TS Compiler kann von jeder Stelle / jedem Verzeichniss in der Command Line angesprochen werden.
+- Lokalle Installation installiert den Compiler im Projekt selbst unter node_modules Verzeichnis.
+  Zeigen IntelliJ Settings für TS in einem Projekt + node_modules.
 
 ---
 
@@ -103,317 +355,6 @@ Notes
 ---
 
 # Basic types. Primitives.
-
----
-
-Arrow functions are anonymous functions that use an "arrow" __=>__. The syntax for arrow functions comes in many variations.
-All variations begin with _function arguments_, followed by the _arrow_, followed by the _body_ of the function.
-Both the arguments and the body can take different forms depending on usage.
-    
-__Single argument.__ When there is only one argument for an arrow function, it can be used directly without any parentheses.
-The expression to the right of the arrow is evaluated and returned.
-    
-ES6
-    
-```ts
-[1, 2, 3].map(num => num * 2);
-```
-    
-ES5 equivalent
-    
-```js
-[1, 2, 3].map(function(num) {return num * 2;});
-```
-    
-No `return` keyword is required with a single statement.
-
----
-    
-# Arrow functions. Syntax (2/4).
-    
-__More than one argument.__ You must include parentheses around the arguments if there are more than one argument.
-    
-ES6
-    
-```js
-var sum = (num1, num2) => num1 + num2;
-```
-    
-ES5 equivalent
-    
-```js
-var sum = function(num1, num2) {
-  return num1 + num2;
-};
-```
-    
-__No arguments.__ You must include parentheses if there are no arguments (the same syntax as for many arguments).
-Example of a function that does nothing:
-    
-```js
-var doNothing = () => {};
-```
-    
----
-    
-# Arrow functions. Syntax (3/4).
-    
-__More than one statement in the body.__ If you want to have some other statements and not just an expression to return,
-you have to use brackets.
-    
-ES6
-    
-```js
-[1, 2, 3, 4].map(num => {
-  var multiplier = 2 + num;
-  return num * multiplier;
-});
-```
-    
-ES5 equivalent
-    
-```js
-[1, 2, 3, 4].map(function(num) {
-  var multiplier = 2 + num;
-  return num * multiplier;
-});
-```  
-    
-__Note:__ When a function has multiple arguments and multiple statements, there are no significant differences with
-a named function declaration.
-    
----
-    
-# Arrow functions. Syntax (4/4).
-    
-There is a special case - an arrow function that wants to return an object literal `{...}`. In this case,
-the function body must wrap the literal in parentheses.
-
-ES6
-    
-```js
-var getSomeObject = id => ({key: id, value: "unknown"});
-```
-    
-ES5 equivalent
-      
-```js
-var getSomeObject = function(id) {
-  return {
-    key: id,
-    value: "unknown"
-  };
-};
-```
-    
-Wrapping the object literal in parentheses signals that the braces are an object literal instead of the function body.
-    
----
-    
-# Arrow functions. IIFEs.
-    
-Immediately-invoked function expressions (IIFEs) allow you to define an anonymous function and call it immediately without saving a reference.
-    
-```js
-let person = function(message) {
-  return {
-    getGreeting: function() {
-      return message;
-    }
-  };
-}("Hell World!");
-```
-    
-To accomplish the same thing using arrow functions, you have to wrap the arrow function in parentheses.
-    
-```js
-let person = ((message) => {
-  return {
-    getGreeting: function() {
-      return message;
-    }
-  };
-})("Hell World!");
-```
-    
----
-    
-# Arrow functions. Lexical binding (1/5).
-    
-The value of `this`, `super`, `arguments` inside of the arrow function is determined by the closest containing nonarrow function.
-In other words, the value of `this`, `super`, `arguments` is determined by where the arrow function is defined and not where it is used.
-It is said that arrow functions are bound to their _lexical scope_.
-    
-The value of `this` inside of the arrow function __can't be changed__ due to the lexical binding.
-It remains the same value throughout the entire lifecycle of the function.
-That also means, `.call` and `.apply` won't be able to change the value of `this`.
-    
-There are a few reasons for these differences. The lexical scope reduces errors and ambiguities inside of arrow functions.
-By doing so, JavaScript engines are better able to optimize arrow function execution.
-
-You can say goodbye to `var self = this` and similar hacks, such as using `.bind(this)`, to preserve the context
-within deeply nested methods.
-    
----
-    
-# Arrow functions. Lexical binding (2/5).
-    
-ES5 with `self`
-    
-```js
-function Timer() {
-  var self = this;
-  self.seconds = 0;
-    
-  setInterval(function() {self.seconds++;}, 1000);
-}
-```    
-    
-ES6
-    
-```js
-function Timer() {
-  this.seconds = 0;
-    
-  setInterval(() => this.seconds++, 1000);
-}
-```
-    
----
-    
-# Arrow functions. Lexical binding (3/5).
-    
-ES5 with `.bind(this)`
-    
-```js
-var SomeObject = {
-  init: function() {
-    document.addEventListener("click", (function(event) {
-      this.doSomething(event.type);
-    }).bind(this), false);
-  },
-
-  doSomething: function(type) {...}
-};
-```
-    
-ES6
-    
-```js
-var SomeObject = {
-  init: function() {
-    document.addEventListener("click",
-      event => this.doSomething(event.type), false);
-  },
-
-  doSomething: function(type) {...}
-};
-```
-    
----
-    
-# Arrow functions. Lexical binding (4/5).
-    
-__Quiz__. Will this code work?
-    
-```js
-var controller = {
-  makeRequest: (...) => {
-    // ...
-    this.helper(...);
-  },
-    
-  helper: (...) => {
-    // ...
-  }
-};
-
-controller.makeRequest(..);
-```
-
---
-    
-__Answer__: No.
-    
-The `this.helper` reference fails, because `this` here doesn't point to `controller`.
-It lexically inherits `this` from the surrounding scope and `this` in the surrounding scope points to the global scope!
-The global scope doesn't have the method `helper`.
-    
----
-    
-# Arrow functions. Lexical binding (5/5).
-
-Arrow functions don't have their own `arguments` object, but it's possible to access the `arguments` object from a containing function.
-    
-```js
-function createArrowFunction() {
-  return () => arguments[0];
-}
-
-var arrowFunction = createArrowFunction(5);
-    
-console.log(arrowFunction());  // 5
-```
-    
-Last but not least: arrow function cannot be used as a constructor and will throw an error when used with `new`.
-    
-```js
-var MyType = () => {};
-    
-var object = new MyType();  // error
-```
-
----
-    
-# Block-level functions. Strict mode.
-    
-In ECMAScript before 6, a function declaration inside of a block led to a different behavior in browsers,
-so it is considered a best practice to avoid function declarations inside of blocks.
-In ECMAScript 6, block-level functions were standardized.
-    
-```js
-"use strict";
-    
-if (true) {
-  console.log(typeof doSomething);  // "function"
-    
-  function doSomething() {
-    ...
-  }
-    
-  doSomething();
-}
-    
-console.log(typeof doSomething);  // "undefined"
-```
-    
-In the strict mode, block level functions are hoisted to the top of the block in which they are defined.
-Once the `if` block finished executing, `doSomething()` no longer exists.
-    
----
-    
-# Block-level functions. Non strict mode.
-    
-ECMAScript 6 also allows block-level functions in non strict mode, but the behavior is slightly different.
-Instead of hoisting these declarations to the top of the block, they are hoisted to the containing function or global environment.
-    
-```js
-if (true) {
-  console.log(typeof doSomething);  // "function"
-    
-  function doSomething() {
-    ...
-  }
-    
-  doSomething();
-}
-    
-console.log(typeof doSomething);  // "function"
-```
-    
-In this example, `doSomething()` is hoisted into the global scope so that it still exists outside of the `if` block.
-ECMAScript 6 standardized this behavior to remove the incompatible browser behaviors that previously existed,
-so all ECMAScript 6 runtimes should behave in the same way.
     
 ---
 class: center, middle, inverse
@@ -427,7 +368,7 @@ Slideshow created with [remark](https://github.com/gnab/remark)
 </textarea>
 <script>
     var slideshow = remark.create({
-        highlightLanguage: 'typescript', highlightStyle: 'idea', navigation: {scroll: false}
+        highlightLanguage: 'typescript', highlightStyle: 'railscasts', navigation: {scroll: false}
     });
 </script>
 </body>

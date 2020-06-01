@@ -8,9 +8,8 @@ __Table of Contents__
   * Main advantages of TypeScript
 * What is the best way to learn the TypeScript language?
 * Relationship between TypeScript and JavaScript
-* Getting started with code generation
-  * Installation
-  * Output
+* Code generation
+* Installation and Output
 * Learning TypeScript Playground
 * Basic types
   * Primitive types
