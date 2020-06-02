@@ -46,6 +46,11 @@ __Table of Contents__
 * Decorators
 * Mixins - composing partial behaviors
 * Types declarations
+* Latest TypeScript features
+  * Optional chaining
+  * Nullish coalescing
+  * Recursive type aliases
+  * Support for ECMAScript private fields
 * Some best practice tips
   * Prefer unions of interfaces to interfaces of unions
   * Use async functions instead of callbacks
