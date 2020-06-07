@@ -19,6 +19,8 @@ __Table of Contents__
   * Interfaces
   * Classes
     * Public, private, and protected modifiers
+    * Keywords _static_ and _abstract_
+    * Interfaces extending classes
 * Modules
 * Meet TypeScript compiler options
   * noImplicitAny

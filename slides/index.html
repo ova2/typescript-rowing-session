@@ -720,16 +720,176 @@ enum Direction {
 
 # Interfaces
 
+An interface is a way to take a particular structure / shape and give it a name so that we can reference it later as a type.
+It defines a contract within our code. Interfaces begin with the keyword `interface`.
+
+```ts
+interface Person {
+  name: string;
+  children?: number;
+  isMarried(): boolean;
+  (): void;
+}
+```
+
+The specified interface `Person` has the following:
+
+- The `name` property of type `string`.
+- The optional property `children` of type number. Optional properties are denoted by a question mark and can be omitted.
+- The `isMarried` method that returns a `boolean` value.
+- Anonymous (unnamed) method that returns nothing.
+
+???
+
+Interfaces können von einander erben. Dafür gibt es das Schlüsselwort extends. Bsp. in Playgrond:
+```ts
+interface Employee extends Person {
+  salary: number;
+}
+```
+
+---
+
+# Interfaces
+
+TypeScript allows you to use the syntax `[index: type]` to specify a `string` or `number` type based collection of key/value pairs.
+Interfaces perfectly fit such data structures. For example:
+
+```ts
+interface Dictionary {
+  [index: number]: string;
+}
+```
+
+```ts
+let dict: Dictionary = {
+  0: 'zero',
+  1: 'one',
+  2: 'two'
+};
+```
+
+---
+
+# Interfaces
+
+__An interface is only used by TypeScript compiler at compile time, and is then removed.__
+
+Interfaces don't end up in the final JavaScript output. General, no types appear in the output. You can see that in the TypeScript Playground.
+
+![100%](../images/interfaces.png)
+
+???
+
+Ein Interface ist nur zur Kompilierzeit sichtbar und taucht nirgends in dem Output.
+Generell, alle TS Typen verschwinden im kompilierten JS Code. Bei Enums haben wir dies bereits gesehen.
+Klassen, die wir auf der nächsten Folie kennenlernen, bleiben im Output, weil sie im EcmaScript-Standard schon lange enthalten sind (seit ES 2015).
 
 ---
 
 # Classes
 
+Beside interfaces, there are __classes__ that describe objects. A class acts as a template for
+instantiating specific objects. The syntax for TypeScript's classes is almost identical to that of
+native classes in ECMAScript 2015 with some handy additions.
+
+```ts
+class Greeter {
+  greeting: string;
+
+  constructor(message: string) {
+    this.greeting = message;
+  }
+
+  greet() {
+    return "Hello, " + this.greeting;
+  }
+}
+
+// usage
+let greeter = new Greeter("world");
+```
+
+???
+
+Wir haben eine Klasse `Greeter` deklariert, mit der Property `greeting`, einem Constructor und der Methode `greet()`
+
+---
+
+# Classes
+
+In TypeScript we can extend a class using __extends__ keyword.
+
+```ts
+class Person {
+  name: string;
+  age: number;
+
+  constructor(name: string, age: number) {
+    this.name = name;
+    this.age = age;
+  }
+}
+
+class Employee extends Person {
+  salary: number;
+
+  constructor(name: string, age: number, salary: number) {
+    super(name, age);
+    this.salary = salary;
+  }
+}
+
+// usage
+let employee = new Employee("Max", 35, 3000);
+```
+
+???
+
+Der Constuctor von der Superklasse kann mit dem Schlüsselwort super aufgerufen werden
 
 ---
 
 # Public, private, and protected modifiers
 
+
+---
+
+# Keywords static and abstract
+
+
+---
+
+# Interfaces extending classes
+
+In TypeScript, interfaces can extend classes. When an interface type extends a class type it inherits the members of the class but not their implementations.
+This means that when you create an interface that extends a class with private or protected members,
+that interface type can only be implemented by that class or a subclass of it.
+
+```ts
+class Control {
+    private state: any;
+}
+
+interface SelectableControl extends Control {
+    select(): void;
+}
+
+class Button extends Control implements SelectableControl {
+    select() { }
+}
+
+// Error: Property 'state' is missing in type 'Image'.
+class Image implements SelectableControl {
+    private state: any;
+    select() { }
+}
+```
+
+???
+
+- Auch private and protected Members werden vererbt.
+- Das ist nützlich, wenn man explizit ausdrücken will, dass der Code nur mit Subklassen funktioniert, welche bestimmte Properties aufweisen.
 
 ---
 
