@@ -88,7 +88,6 @@ Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-B
 
 ???
 
-
 - Was heisst "supported out of the box"? TS kompiliert den Code so, dass auch die modernen Features unterstützt werden,
  welche in eurem Browser (wo das Program läuft) nicht unterstützt sind.
 - Auto-completion in einem Projekt demonstrieren.
@@ -275,7 +274,7 @@ __Target__ signifies which target of JavaScript should be emitted from the given
 
 ???
 
-Der Kompiler kompiliert / transpiliert den TS Code in JS Code. Dabei kann das Target via Compiler-Options angegeben werden.
+Der Compiler kompiliert / transpiliert den TS Code in JS Code. Dabei kann das Target via Compiler-Options angegeben werden.
 Nicht alle Browser unterstützen die modernen JavaScript Features. Mittels Target kann ich meine Browser-Platform auswählen,
 wo mein Program nachher läuft. Die wichtigsten Kompileroptionen und wo man sie angibt, werden wir noch kennenlernen.
 An dieser Stelle möchte ich aber dennoch ein Beispiel für die Target-Option geben.
@@ -369,8 +368,435 @@ Im Playground selbst kann folgende Einstellungen vornehmen:
 
 ---
 
-# Basic types. Primitives.
-    
+# Primitive types
+
+TypeScript exposes the basic types, as well as a couple of extra types. Let's explore the type system with examples.
+
+__boolean__. The type is a primitive JavaScript boolean.
+
+```ts
+let success: boolean = true;
+```
+
+__number__. The type is a primitive JavaScript number.
+
+```ts
+let count: number = 20;
+```
+
+__string__. The type is a primitive JavaScript string.
+
+```ts
+let message: string = "Hello world";
+```
+
+---
+
+# Primitive types
+
+__Array__. The type is an array of value. There are two equivalent notations.
+
+```ts
+let ages: number[] = [31, 20, 65];
+let ages: Array<number> = [31, 20, 65];
+```
+
+__Tuple__. The type represents a heterogeneous array of values. Tuple enables storing multiple fields of different types.
+
+```ts
+let x: [string, number];
+x = ["age", 40];  // ok
+x = [40, "age"] ; // error
+```
+
+__object__. The type represents the non-primitive type, i.e. anything that is not `number`, `string`, `boolean`, `bigint`, `symbol`, `null`, or `undefined`.
+
+__Attention:__ There is `object` (lowercased) and `Object` (uppercased)!
+
+- `object` represents all non-primitive types.
+- `Object` describes functionality that is common to all JavaScript objects, e.g. the methods `toString()`, `hasOwnProperty()`, etc.
+
+???
+
+- Bei Arrays tendiere ich persönlich zu der 1. Schreibweise
+- Tuples erlauben Array Definitionen mit unterschiedlichen Typen einzelner Elementen
+
+---
+
+# Primitive types
+
+Example of usage of `object`:
+
+The `Object.create()` method specifies the type `object | null` for its parameter:
+
+```ts
+interface ObjectConstructor {
+  // Creates an object that has the specified prototype or
+  // that has null prototype.
+  create(o: object | null): any;
+  ...
+}
+```
+
+Examples:
+
+```ts
+Object.create(proto);     // OK
+Object.create(null);      // OK -> creates "pure" object
+Object.create(undefined); // Error
+Object.create(1337);      // Error
+Object.create(true);      // Error
+Object.create("oops");    // Error
+```
+
+???
+
+Kennt ihr die Methode create()? Die Methode create des Konstruktors Object erzeugt ein neues gewöhnliches Objekt.
+Der Prototyp des erzeugten Objektes ist der Wert, welcher der Methode beim Aufruf als erstes Argument übergeben wurde.
+D.h. das erzeugte Objekt erbt alles von dem übergebenen Objekt (vom Prototype des übergebenen Objektes, alle Properties und Methoden).
+
+---
+
+# Types void, null and undefined
+
+__void__. The type represents the absence of having any type. This type is normally used as the return type of functions.
+
+```ts
+function doSomething(): void {
+  // do something
+}
+```
+
+__undefined__ and __null__. These types represents `undefined` and `null` respectively.
+
+```ts
+// undefined means, the value hasn't been initialized
+let u: undefined = undefined;
+// null means, the value is currently unavailable
+let n: null = null;
+```
+
+Per default, `null` and `undefined` are valid values of every type. That means, they can be assigned to any other type.
+
+```ts
+let x: string = "foo";
+x = null; // ok
+```
+
+???
+
+Wir werden später sehen, wie dieses Default-Verhalten mit Hilfe von Compiler-Optionen geändert werden kann.
+
+---
+
+# Difference between any, unknown and never
+
+__any__. The type is anything. It is useful when you need to describe the type of variables that you do not know
+at the time of writing your application. You can assign a value of arbitrary type to a variable of type `any`.
+A value of type `any` in turn can be assigned to a variable of arbitrary type.
+
+```ts
+let some: any = "some";
+some = 10000;
+some = false;
+
+let success: boolean = some;
+let count: number = some;
+let message: string = some;
+```
+
+When to use `any` type in TypeScript? Due to the nature of JavaScript, in some cases providing accurate types isn't a simple task.
+Use the `any` when there no type definitions available for that particular piece of code you're working with.
+
+???
+
+any sollte nur in Ausnahmefällen benutzt werden,
+wenn der Type wirklich nicht bekannt / nicht aus dem existierenden Code abgeleitet werden kann.
+
+---
+
+# Difference between any, unknown and never
+
+- `any` disables the type checker => there's no type safety with `any` type. Compare two code pieces:
+
+```ts
+let age: number;
+age = 12;
+age += 1;  // age = 13
+```
+
+```ts
+let age: any;
+age = '12';
+age += 1;  // no errors at runtime, but age is now "121"
+```
+
+- `any` lets you break contracts. When you write a function, you are specifying a contract for expected input and output.
+But with `any` you can break these contracts. E.g.
+
+```ts
+function calculateAge(birthDate: Date): number { ... }
+
+let birthDate: any = '1990-01-19';
+calculateAge(birthDate); // OK at compile time,
+                         // but can produce error at runtime
+```
+
+???
+
+Warum is any type mit Vorsicht zu geniessen? Any birgt viele Nachteile in sich. Nur zwei Beispiele.
+
+---
+
+# Difference between any, unknown and never
+
+TypeScript 3.0 introduced a new `unknown` type which is the type-safe counterpart of the any type.
+The main difference between `unknown` and `any` is that `unknown` is much less permissive than `any`:
+we have to do some form of checking before performing most operations on values of type `unknown`.
+
+- Common part for `any` and `unknown`: just like all types are assignable to `any`, all types are assignable to `unknown`.
+
+```ts
+let value: unknown;
+value = true;             // OK
+value = 42;               // OK
+value = "Hello World";    // OK
+value = [];               // OK
+value = {};               // OK
+value = Math.random;      // OK
+value = null;             // OK
+value = undefined;        // OK
+value = new TypeError();  // OK
+value = Symbol("type");   // OK
+```
+
+???
+
+- unknown ist nicht so tolerant oder freizügig als any und bringt mehr Typesicherheit ins Spiel.
+- unknown zwingt die Entwickler mehr Prüfungen hinsichtlich der Typen zu machen, bevor man einen Wert vom Typ unknown überhaupt verwendet.
+- unknown hat sowohl die Gemeinsamkeiten, als auch die Unterschiede zu any.
+
+---
+
+# Difference between any, unknown and never
+
+- Different part between `any` and `unknown`: the `unknown` type is only assignable to the `any` type and the `unknown` type itself.
+
+```ts
+let value: unknown;
+let value1: unknown = value;   // OK
+let value2: any = value;       // OK
+let value3: boolean = value;   // Error
+let value4: number = value;    // Error
+let value5: string = value;    // Error
+let value6: object = value;    // Error
+let value7: any[] = value;     // Error
+let value8: Function = value;  // Error
+
+// Furthermore, none of the operations
+// are considered type-correct anymore!
+// Examples:
+value.trim();   // Error
+value();        // Error
+value[0];       // Error
+```
+
+---
+
+# Difference between any, unknown and never
+
+__Main advantage of unknown__
+
+This is useful for APIs that want to signal
+"this can be any value, so you must perform some type of checking before you use it".
+This forces users to safely introspect returned values.
+
+```ts
+// Type assertion to rescue
+const value: unknown = "Hello World";
+(value as string).toUpperCase();  // "HELLO WORLD"
+```
+
+When to use:
+
+- when the client gets a response from backend and data type is unknown.
+- when the client reads the data from browser's persistence storage.
+- ...
+
+???
+
+- Um mit `unknown` vernüftig ohne Compiler-Fehler zu arbeiten, ist der Entwickler dazu gezwungen,
+  über den Type nachzudenken und type assertions to verwenden (werden weiter kennenlernen).
+- In TS playground probieren:
+  ```ts
+  const value: unknown = "Hello World";
+  console.log(value.toUpperCase());
+  console.log((value as string).toUpperCase());
+  ```
+- Wann sollte unknown benutzt werden?
+  - Z.B. wenn man die Daten vom Server in HTTP-Response bekommt und der Typ der Daten nicht bekannt ist (unknown zu benutzen ist hier sicherer als any)
+  - Wenn man die Daten aus dem Browser Persistence-Storage liest. Im einfachsten Fall liest man die Daten mit localeStorage (blocking API: getItem, setItem).
+
+---
+
+# Difference between any, unknown and never
+
+__never__. The `never` type represents the type of values that never occur. For instance,
+`never` is the return type for a function expression or an arrow function expression that always throws an exception or one that never returns.
+
+```ts
+function error(message: string): never {
+  throw new Error(message);
+}
+```
+
+```ts
+function infiniteLoop(): never {
+  while (true) {
+  }
+}
+```
+
+- The `never` type is assignable to every type.
+- However, no type is assignable to `never` (except never itself). Even `any` isn't assignable to never.
+
+---
+
+# Difference between any, unknown and never
+
+__Summary__
+
+Types `any`, `unknown` and `never` at a glance.
+
+![100%](../images/any-unknown-never.png)
+
+???
+
+Wie gesagt, any hebelt den Type-Checker komplett aus und bringt die meiste Freiheit hier.
+Aber any bringt auch die meiste Typunsicherheit und die Laufzeitfehler mit.
+Programmieren mit any in TS ist mit dem Programmieren in pure JS gleichgestellt. Alle Vorteile einer typisierten Sprache gehen verloren!
+
+---
+
+# Enums
+
+Enums allow us to define a set of named constants. There are Numeric, String and Heterogeneous enums.
+
+__Numeric enums__
+
+Enum members have numeric values associated with them (started with 0):
+
+```ts
+enum Color {
+  Red,
+  Green,
+  Blue
+}
+
+let color = Color.Red; // color has value 0
+```
+
+__String enums__
+
+```ts
+enum Direction {
+  Up = "UP",
+  Down = "DOWN"
+}
+```
+
+???
+
+- Vorteil von String enums liegt auf der Hand. Die Werte sind aussagekräftiger als bei numerischen enums, was beim Debugging sehr hilft.
+- Heterogener enum vereint Numeric und String enums (man kann beide mischen). TS empfielt diese Enums zu vermeiden;
+  es ist nicht klar, wo sie überhaupt nützlich sind.
+- JS Code von enum Color in Playground zeigen. Zeigen versteckte Features:
+  ```
+  console.log(Color["Blue"]);
+  console.log(Color[2]);
+  ```
+
+---
+
+# Interfaces
+
+
+---
+
+# Classes
+
+
+---
+
+# Public, private, and protected modifiers
+
+
+---
+
+# Modules
+
+
+---
+
+# Meet TypeScript compiler options. noImplicitAny.
+
+
+---
+
+# Meet TypeScript compiler options. strictNullChecks.
+
+We have seen the default behavior when setting nullable types `null` and `undefined`. For example:
+
+```ts
+let x: number;
+x = 1;         // ok
+x = undefined; // ok
+```
+
+It is not always desired. TypeScript offers a possibility to change this default behavior by setting the compiler options
+`--strictNullChecks` to `true`. With this option set, you have to include these types explicitly using a union type (explained later on),
+otherwise, you will get an error. Example:
+
+```ts
+let x: string = "foo";
+x = null; // error
+let y: string | null = "foo";
+y = null; // ok
+```
+
+Benefit: This helps avoid many common errors!
+
+---
+
+# Structural typing
+
+---
+
+# Difference between type and interface
+
+---
+
+# Type assertions
+
+Sometimes, you would like to tell compiler that you know the type better than it does and it
+should trust you. For instance, imagine a situation where you receive data over HTTP and
+know exactly the structure of the received data. The compiler doesn't know such structure
+of course. In this case, you want to turn off the type checking when assigning the data to a
+variable. It is possible with so called __type assertions__. Type assertion is like a type cast in
+other languages, but without the checking of data. You can do that either with _angle bracket_
+or the _as_ syntax.
+
+```ts
+let element = <HTMLCanvasElement> document.getElementById('canvas');
+let element = document.getElementById('canvas') as HTMLCanvasElement;
+```
+
+TODO
+
+---
+
+# Type inference
+
 ---
 class: center, middle, inverse
     
