@@ -850,13 +850,115 @@ Der Constuctor von der Superklasse kann mit dem Schlüsselwort super aufgerufen 
 
 ---
 
+# Classes
+
+A class can implement an interface using the __implements__ keyword. If a class implements some interface,
+it must adopt all properties from this interface; otherwise, you will get an error about missing properties.
+
+```ts
+interface Animal {
+  name: string;
+}
+
+class Dog implements Animal {
+  name: string;
+
+  // do specific things
+}
+```
+
+---
+
 # Public, private, and protected modifiers
 
+In TypeScript, you can use `public`, `private` and `protected` access modifiers:
+
+```ts
+class Dog {
+  private name: string; // can only be accessed within this class
+  public owner: string = "Max";
+
+  constructor(name: string) {
+    this.name = name;
+  }
+
+  protected sayBark() { ... }
+}
+
+let dog = new Dog("Sam");
+dog.sayBark(); // compiler error because method 'sayBark'
+               // is protected and only accessible within
+               // the class 'Dog' and its subclasses.
+```
+
+Members with omitted modifiers are `public` by default.
+
+---
+
+# Public, private, and protected modifiers
+
+It is possible to declare a constructor parameter with a modifier.
+As result, a member will be created and initialized in one place. Example:
+
+```ts
+class Dog {
+
+  constructor(private name: string) {
+  }
+
+  public printName(): void {
+    // you can now access the property name by this.name
+    console.log(this.name);
+  }
+}
+```
+
+&#x2757;
+_This shortened syntax is often used in Angular when we inject services into components.
+Angular's services are normally declared in the component's constructor with the private modifier._
 
 ---
 
 # Keywords static and abstract
 
+If a property or method is declared with the `static` keyword, there is no need to create an instance to access them.
+
+```ts
+class Circle {
+  static pi: number = 3.14;
+
+  static calculateArea(radius:number) {
+    return this.pi * radius * radius;
+  }
+}
+```
+
+Usage:
+
+```ts
+Circle.pi; // returns 3.14
+Circle.calculateArea(5); // returns 78.5
+```
+
+---
+
+# Keywords static and abstract
+
+A class can be abstract, that means, it may not be instantiated directly. Abstract classes begin with the keyword `abstract`.
+
+The `abstract` keyword is used to define abstract classes as well as abstract methods within an abstract class.
+
+```ts
+abstract class Animal {
+  abstract makeSound(): void;
+
+  move(): void {
+    console.log("roaming the earth...");
+  }
+}
+```
+
+__Note:__ Methods within an abstract class that are marked as abstract do not contain an implementation and must be implemented in derived classes.
 
 ---
 
@@ -893,8 +995,129 @@ class Image implements SelectableControl {
 
 ---
 
+# Getters / setters accessors
+
+Getters and setters (also known as accessors) were introduced to JavaScript when ECMAScript 5 (2009) was released.
+They provide an alternative way to access the properties of an object.
+
+```ts
+class Person {
+  private _age: number;
+
+  public set age(age) {
+    if (age < 0 || age > 200) {
+      throw new Error('Invalid arguement age');
+    }
+
+    this._age = age;
+  }
+
+  public get age() {
+    return this._age;
+  }
+}
+
+const person: Person = new Person();
+person.age = -10;  // error at runtime
+```
+
+???
+
+- The Underscore vor dem age wird öfters für private Felder benutzt.
+- Man kann in setters eine Validierung, wie im Beispiel machen.
+- Was kann man in getters machen? In getters kann man z.B. einen neuen Rückgabewert aus mehreren Properties zusammenstellen.
+  Bsp.: denkbar wäre eine Klasse mit den Properties "firstName" und "surname", und einem getter "fullName".
+  In Getter werden "fullName" und "surname" konkateniert.
+
+---
+
 # Modules
 
+ECMAScript 2015 has introduced built-in modules. The features of modules are as follows:
+
+- Each module is defined in its own file.
+
+- Functions or variables defined in a module are not visible outside unless you explicitly export them.
+
+- You can place the __export__ keyword in front of any variable, function, or class declaration to export it from the module.
+
+- You can use the __import__ keyword to consume the exported variable, function, or class declaration.
+
+- Modules are singletons. Only a single instance of a module exists, even if it was imported multiple times.
+
+---
+
+# Modules
+
+Some exporting possibilities are listed here:
+
+```ts
+  // export data
+  export let color: string = "red";
+
+  // export function
+  export function sum(num1: number, num2: number) {
+    return num1 + num1;
+  }
+
+  // export class
+  export class Rectangle {
+    constructor(private length: number, private width: number) {
+    }
+  }
+```
+
+---
+
+# Modules
+
+You can declare a variable, function, or class and export it later. You can also use the `as`
+keyword to rename exports. A new name is the name used for importing.
+
+```ts
+class Rectangle {
+  constructor(private height: number, private width: number) { }
+}
+
+export {Rectangle as rect};
+```
+
+Once you have a module with exports, you can access its functionality in another module using the `import` keyword:
+
+```ts
+import {sum} from "./lib.js";
+import {Rect, Circle} from "./lib.js";
+
+let sum = sum(1, 2);
+let rect = new Rect(10, 20);
+```
+
+???
+
+Exports / imports an einem Beispiel-Projekt zeigen und sagen:
+Module werden automatisch durch die Bundlers, wie beispielsweise Webpack (Rollup, Parsel), zusammengebündelt.
+Bundlers verpacken JavaScript modules in einzelne JavaScript files, welche in Browser ausgeführt werden können.
+
+---
+
+# Modules
+
+There is a special case that allows you to import the entire module as a single object. All
+exported variables, functions, and classes are available on that object as properties:
+
+```ts
+import * as lib from "./lib.js";
+
+let sum = lib.sum(1, 2);
+```
+
+Imports can be renamed with the `as` keyword and used under the new name:
+
+```ts
+import {sum as add} from "./lib.js";
+
+let sum = add(1, 2);
+```
 
 ---
 

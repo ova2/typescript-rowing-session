@@ -21,6 +21,7 @@ __Table of Contents__
     * Public, private, and protected modifiers
     * Keywords _static_ and _abstract_
     * Interfaces extending classes
+* Getters / setters accessors
 * Modules
 * Meet TypeScript compiler options
   * noImplicitAny
