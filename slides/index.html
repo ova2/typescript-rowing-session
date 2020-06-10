@@ -1121,8 +1121,106 @@ let sum = add(1, 2);
 
 ---
 
+# Meet TypeScript compiler options
+
+TypeScript can feel like a very different language depending on how it is configured.
+Compiler settings define files and libraries to be included in the compilation, output structure, module code generation, and so on.
+They can be set
+
+__1.__ Via the command line
+
+```
+tsc --noImplicitAny program.ts
+```
+
+__2.__ Via the configuration file _tsconfig.json_. Example:
+
+```
+"compilerOptions": {
+  "target": "es5",
+  "module": "es2015",
+  "outDir": "dist",
+  "lib": ["es2015", "dom"]
+}
+```
+
+You should prefer the configuration file. It ensures that your coworkers and tools all know exactly how you plan to use TypeScript.
+
+---
+
+# Meet TypeScript compiler options
+
+Officially documentation: https://www.typescriptlang.org/docs/handbook/compiler-options.html
+
+Example from a real project:
+
+```
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "downlevelIteration": true,
+    "importHelpers": true,
+    "outDir": "./dist/out-tsc",
+    "baseUrl": "src",
+    "sourceMap": true,
+    "declaration": false,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "target": "es2018",
+    "typeRoots": ["node_modules/@types"],
+    "lib": ["es2018", "dom"]
+  }
+}
+```
+
+---
+
 # Meet TypeScript compiler options. noImplicitAny.
 
+To use TypeScript effectively, you should understand the most important compiler options: `noImplicitAny` and `strictNullChecks`.
+
+`noImplicitAny` controls whether variables must have known types. This code is valid when `noImplicitAny` is off:
+
+```ts
+function add(a, b) {
+  return a + b;
+}
+```
+
+TypeScript inferred `any` type (check in TypeScript Playground!).
+These are called _implicit anys_ because you never wrote the word "any".
+
+__Attention:__ The `any` type effectively disables the type checker!
+
+???
+
+- In TypeScript Playground die Mouse über die Parameter bewegen. Man sieht, dass TypeScript vom Type any ausgeht.
+Man nennt das Type Inferenz.
+- Explizite Type sind für Anfänger oder Projekt-Einsteiger sehr hilfreich. Damit verstehen sie den neuen Code viel besser.
+
+---
+
+# Meet TypeScript compiler options. noImplicitAny.
+
+The code becomes an error if you set the `noImplicitAny` option:
+
+```ts
+function add(a, b) {
+        // ~~~ Parameter 'a' implicitly has an 'any' type
+        // ~~~ Parameter 'b' implicitly has an 'any' type
+  return a + b;
+}
+```
+
+These errors can be fixed by explicitly writing type declarations.
+
+```ts
+function add(a: number, b: number): number {
+  return a + b;
+}
+```
 
 ---
 
@@ -1137,7 +1235,7 @@ x = undefined; // ok
 ```
 
 It is not always desired. TypeScript offers a possibility to change this default behavior by setting the compiler options
-`--strictNullChecks` to `true`. With this option set, you have to include these types explicitly using a union type (explained later on),
+`strictNullChecks` to `true`. With this option set, you have to include these types explicitly using a union type (explained later on),
 otherwise, you will get an error. Example:
 
 ```ts
@@ -1147,7 +1245,7 @@ let y: string | null = "foo";
 y = null; // ok
 ```
 
-Benefit: This helps avoid many common errors!
+__Benefit:__ This helps avoid many common errors!
 
 ---
 
