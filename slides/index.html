@@ -1251,6 +1251,68 @@ __Benefit:__ This helps avoid many common errors!
 
 # Structural typing
 
+Strictly-typed programming languages can be either structurally or nominally typed.
+TypeScript is a structurally typed language - and this is a key difference to other strictly-typed languages such as C# or Java,
+that are nominally typed. This means that types are identified by their _shape_ rather than _name_ or _alias_.
+
+In nominally-typed languages the following code would be an error because the `Person` class does not explicitly describe itself as being an implementer
+of the `Named` interface.
+
+```ts
+interface Named {
+  name: string;
+}
+
+class Person {
+  name: string;
+}
+
+let p: Named;
+// Error in nominally-typed languages,
+// but OK in structurally typed ones
+p = new Person();
+```
+
+???
+
+Die Struktur, genannt als Shape, beider Objekten ist identisch. Beide haben die Eigenschaft "name". Deshalb klappt's auch die Zuweisung.
+
+---
+
+# Structural typing
+
+Another example:
+
+```ts
+type Person = {
+ name: string;
+ weight: number;
+}
+
+type Pet = {
+ name: string;
+ weight: number;
+}
+
+const man: Person = { name: "Oleg", weight: 88.4 };
+const dog: Pet = { name: "Urmel", weight: 5.7 };
+
+const sayName = (person: Person) => console.log(person.name);
+
+sayName(man);  // Output: Oleg
+sayName(dog);  // Output: Urmel
+```
+
+`sayName's` only condition is that whatever is passed to it has a property called `name`.
+This is <a href="https://en.wikipedia.org/wiki/Duck_typing">Duck Typing</a>,
+and follows the style you'd use to write typical JavaScript or Python code.
+
+???
+
+- Die Funktion "sayName" erwartet zwar eine Person, aber die Shape von dem Typ "Pet" ist die gleiche, wie bei Person (gleiche Eigenschaften).
+Deshalb gibt es keine Fehler vom TS Compiler.
+- TS nachahmt hier JS
+
 ---
 
 # Difference between type and interface
