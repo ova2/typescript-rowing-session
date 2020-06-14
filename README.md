@@ -27,7 +27,9 @@ __Table of Contents__
   * noImplicitAny
   * strictNullChecks
 * Structural typing
-* Difference between type and interface
+* Similarities between type and interface
+* Differences between type and interface
+  * Interface declaration merging
 * Type assertions
 * Type inference
 * Optional and required properties

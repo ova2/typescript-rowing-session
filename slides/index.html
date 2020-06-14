@@ -1315,30 +1315,245 @@ Deshalb gibt es keine Fehler vom TS Compiler.
 
 ---
 
-# Difference between type and interface
+# Similarities and differences between type and interface
+
+If you want to define a named type in TypeScript, you have two options. You can use a __type__
+
+```ts
+type State = {
+  name: string;
+  capital: string;
+}
+```
+
+or an __interface__
+
+```ts
+interface State = {
+  name: string;
+  capital: string;
+}
+```
+
+Which should you use, `type` or `interface`? It depends...
+
+---
+
+# Similarities between type and interface
+
+Extra properties beyound defintion lead to the same error.
+
+```ts
+const bern: State = {
+  name: 'Bern',
+  capital: 'Bern'
+  population: 1035000
+  // ~~~ Type '{name: string; capital: string; population: number;}'
+  //     is not assignable to type 'State'. Object literal may only
+  //     specify known properties, and 'population' does not exist
+  //     in type 'State'.
+}
+```
+
+You can use an _index signature_ with both.
+
+```ts
+type TDict = { [key: string]: string };
+interface IDict {
+  [key: string]: string
+}
+```
+
+---
+
+# Similarities between type and interface
+
+You can also define function types with either.
+
+```ts
+type TFn = (x: number) => string;
+interface IFn {
+  (x: number): string
+}
+```
+
+For both types, Generics are possible. Beispiel mit recursion (since TS 3.7):
+
+```ts
+type TItem<T> = {
+  value: T;
+  reference: TItem<T>;
+}
+interface IItem<T> {
+  value: T;
+  reference: IItem<T>;
+}
+```
+
+???
+Bei function types sieht die Definition mit type natürlicher aus. Beachtet bitte, wie der Rückgabetyp definiert ist.
+Standardmässig folgt der Rückgabetyp bei der Funktion-Definition einem Pfeil.
+
+---
+
+# Similarities between type and interface
+
+An `interface` can extend a `type`, and a `type` can extend an `interface`.
+
+```ts
+interface IStateWithPopulation extends TState {
+  population: number;
+}
+type TStateWithPopulation = IState & { population: number; };
+```
+
+__Exclusion__: An `interface` cannot extend a complex type like a union type.
+
+A class can implement either an `interface` or a similar `type`.
+
+```ts
+class StateImpl implements TState {
+  name: string = '';
+  capital: string = '';
+}
+class StateImpl implements IState {
+  name: string = '';
+  capital: string = '';
+}
+```
+
+---
+
+# Differences between type and interface
+
+Union types or extending union types cannot be expressed with `interface`.
+
+```ts
+type Input = { ... };
+type Output = { ... };
+type InputOutput = Input | Output;
+```
+
+Tuples and array types can be more easily expressed with `type`.
+
+```ts
+type Pair = [number, number];
+type StringList = string[];
+type NamedNums = [string, ...number[]];
+```
+
+---
+
+# Differences between type and interface
+
+You can merge interfaces but not types. This feature is called __"declaration merging"__.
+"Declaration merging" is when the TypeScript complier merges two or more types into one declaration provided the same name.
+
+TypeScript allows merging between multiple types such as `interface` with `interface`, `enum` with `enum`,
+`namespace` with `namespace`, etc. Example:
+
+```ts
+interface Person {
+  name: string;
+}
+
+interface Person {
+  age: number;
+  height: number;
+}
+
+class Employee implements Person {
+  name = "Max"
+  age = 36;
+  height = 190
+}
+
+const employee = new Employee();
+console.log(employee) // {name: "Max", age: 36, height: 190}
+```
+
+???
+
+- Nur Declaration merging von Klassen ist nicht erlaubt. Fast die einzige Ausnahme.
+- Weil alle Interfaces mit dem gleichen Namen Person deklaririert sind, werden sie in eine TS Definition gemerged.
+  Employee hat dann alle Eigenschaften einer Person.
+  Das Interface Person kann natürlich in unterschiedlichen Dateien deklariert werden. Man kann mehr sagen: nur so macht es überhaupt Sinn.
+
+---
+
+# Differences between type and interface
+
+Why use declaration merging and where does it shine?
+
+- You can extend declarations of third-party libraries that you import into your project.
+  Example: <a href="https://www.npmjs.com/package/@types/offscreencanvas">OffscreenCanvas by "Definitely Typed"</a> - the repository
+  for high quality TypeScript type definitions.
+
+- You can extend declarations of generated TypeScipt definitions, which are usually coming from backend.
+  Example: generated TypeScript code from plain Java objects by a Maven plugin such as
+  <a href="https://github.com/vojtechhabarta/typescript-generator">typescript-generator</a>.
+
+- TypeScript uses merging to get different types for the different versions of JavaScript's standrad libraries. Example: the `Array` interface.
+  It is defined in _lib.es5.d.ts_ file. By default this is all you get. But if you add _ES2015_ to the _lib_ entry of your _tsconfig.json_,
+  TypeScript will also include _lib.es2015.d.ts_. This includes another `Array` interface with additional methods like _find_ that were
+  added in _ES2015_. They get added to the other `Array` interface via merging.
+
+???
+
+- Gibt es andere Programmiersprachen mit dem vergleichsweise ähnlichen Feature? Ich weiss es nicht.
+- Definitely Typed hat fast alle denkbaren TS type definitions für third-party JavaScript libs.
+  Sie können in jeweiligen TS Projekten installiert werden und bringen Typen und Autocompletion in diese Projekte,
+  wenn diese Projekte third-party Libraries verwenden. OffscreenCanvas ist Standard Web API, ist in der Spec. verankert und
+  erlaubt sogenanntes "Offscreen Rendering", d.h. Rendering auf einem Canvas ohne DOM (entkopelt vom HTML DOM).
+  D.h. das Rendering auf einem OffscreenCanvas kann in WebWorkers ausgelagert werden. Das Main-Thread bleibt damit entlastet
+  und kann nur für User-Interaktionen benutzt werden. Zeitintensives Rendering findet in WebWorkers statt.
+- Declaration merging im realen Projekt vorstellen. Maven generiert TS Deklarationen aus Java-Code (zeigen).
+  Manchmal gibt es aber Eigenschaften, welche im Backend keinen Sinn machen. Z.B. Selection macht nur im Frontend einen Sinn
+  und muss nur dort anhand einer zusätzlichen Property bei einem generierten Interface definiert werden.
 
 ---
 
 # Type assertions
 
 Sometimes, you would like to tell compiler that you know the type better than it does and it
-should trust you. For instance, imagine a situation where you receive data over HTTP and
+should trust you. Type assertions are a way to tell the compiler _"trust me, I know what I'm doing."_
+
+For instance, imagine a situation where you receive data over HTTP and
 know exactly the structure of the received data. The compiler doesn't know such structure
 of course. In this case, you want to turn off the type checking when assigning the data to a
 variable. It is possible with so called __type assertions__. Type assertion is like a type cast in
-other languages, but without the checking of data. You can do that either with _angle bracket_
-or the _as_ syntax.
+other languages, but without the checking of data. It has no runtime impact, and is used purely by the compiler.
+
+You can do that either with _angle bracket_ or the _as_ syntax.
 
 ```ts
 let element = <HTMLCanvasElement> document.getElementById('canvas');
 let element = document.getElementById('canvas') as HTMLCanvasElement;
 ```
 
-TODO
+```ts
+let x: any = "hi there";
+let s = (<string>x).substring(0,3);
+// or alternative
+let s = (x as string).substring(0,3);
+```
 
 ---
 
 # Type inference
+
+---
+
+# Optional and required properties
+
+---
+
+# Readonly properties
+
+---
+
+# Const assertions in literal expressions
+
 
 ---
 class: center, middle, inverse
