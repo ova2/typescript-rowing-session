@@ -1542,18 +1542,252 @@ let s = (x as string).substring(0,3);
 
 # Type inference
 
+There are several places where type inference is used to provide type information when there is no explicit type annotation.
+
+__Tip:__ Avoid cluttering your code with inferable types. The explicit type information is often redundant. Writing it just addes noise.
+
+Don't write:
+
+```ts
+let x: number = 12;
+```
+
+Instead, just write:
+
+```ts
+let x = 12;
+```
+
+Simple example of type inference:
+
+```ts
+let a = "some text";
+let b = 123;
+a = b; // Compiler error:
+       // Type 'number' is not assignable to type 'string'
+```
+
+???
+
+- TS ist in der Lage, die Typen aus der Context-Information abzuleiten.
+- Zeigen den Typ in TS Playground mit Mouseover.
+
+---
+
+# Type inference
+
+Type inference in complex objects:
+
+```ts
+let x = [0, 'a', null];
+```
+
+inferred as
+
+```ts
+(string | number | null)[]
+```
+
+The return type of a function is also inferred by the returning value.
+
+```ts
+function sum(a: number, b: number) {
+  return a + b;
+}
+
+let total: number = sum(10,20); // OK
+let str: string = sum(10,20);   // Compiler error
+```
+
+---
+
+# Type inference
+
+Type inference also works when the type of an expression is implied by its location (this is known as "contextual typing"). Example:
+
+```ts
+window.onmousedown = function(mouseEvent) {
+  console.log(mouseEvent.button);   // <- OK
+  console.log(mouseEvent.kangaroo); // <- Error!
+};
+```
+
+The TypeScript type checker used the type of the `Window.onmousedown` function to infer the type of the function on the right hand side.
+As result, it was able to infer the type of the `mouseEvent` parameter, which does contain a `button` property, but not a `kangaroo` property.
+
+TypeScript may infer something more precise they what you expect.
+
+```ts
+const axis1: string = 'x';  // Type is string
+const axis2 = 'y';          // Type is "y"
+```
+
+"y" is more precise type for the `axis2` variable.
+
 ---
 
 # Optional and required properties
+
+We can specify that a property is optional with a question mark after the name:
+
+```ts
+interface InterfaceWithOptional {
+  foo?: number;
+}
+```
+
+`foo?: number` means that the property `foo` may not exist at all on instances of `InterfaceWithOptional`.
+
+This is different to `undefined` where the property itself should exist, but the value can be `undefined`.
+
+```ts
+interface InterfaceWithUndefined {
+  foo: number | undefined;
+}
+```
+
+---
+
+# Optional and required properties
+
+Property without a question mark is required.
+
+We can make all optional properties as required. This transformation can be done by the utility type `Required<T>`.
+Example:
+
+```ts
+interface Props {
+  a?: number;
+  b?: string;
+};
+
+const obj1: Props = { a: 5 }; // OK
+
+const obj2: Required<Props> = { a: 5 };
+            // ~~~ Error: property 'b' missing
+```
 
 ---
 
 # Readonly properties
 
+Properties marked with `readonly` can only be assigned to during initialization or from within a constructor of the same class.
+All other assignments are disallowed.
+
+```ts
+class Circle {
+  readonly radius: number;
+
+  constructor(radius: number) {
+    this.radius = radius;
+  }
+
+  get area() {
+    return Math.PI * this.radius ** 2;
+  }
+}
+```
+
+```ts
+const circle = new Circle(1);
+circle.radius = 42;
+       //  ~~~ Cannot assign to 'radius'
+       //      because it is a read-only property.
+```
+
+---
+
+# Readonly properties
+
+Arrays can be done readonly by using the `ReadonlyArray<T>` type. Example:
+
+```ts
+const values: ReadonlyArray<string> = ["a", "b", "c"];
+```
+
+This means that we don't intend for this array to be mutated. TypeScript's type checker will produce an error
+if we try to write to the array or call mutating array methods.
+
+```ts
+values[0] = "x";      // Type error
+values.push("x");     // Type error
+values.pop();         // Type error
+```
+
+&#x2757;
+The `readonly` modifier is part of TypeScript's type system. It's only used by the compiler to check for illegal property assignments.
+Once the TypeScript code has been compiled to JavaScript, all notions of readonly are gone.
+
+&#x2757;
+Because `readonly` is only a compile-time artifact, there's no protection against property assignments at runtime!
+
+---
+
+# Readonly properties
+
+`readonly` works shallow! Only the first level in a nested complex object is readonly.
+
+```ts
+interface Outer {
+  inner: {
+    x: number;
+  }
+}
+```
+
+```ts
+const o: Readonly<Outer> = { inner: { x: 0 } };
+
+o.inner = { x: 1 };
+       // ~~~ Cannot assign to 'inner'
+       //     because it is a read-only property.
+o.inner.x = 1; // OK
+```
+
+A deep readonly type is suggested: <a href="https://github.com/microsoft/TypeScript/issues/13923">DeepReadonly type</a>.
+
 ---
 
 # Const assertions in literal expressions
 
+Good news: literal expressions can be made deep readonly. A __const assertion__ is a special type assertion that uses the `const` keyword.
+Using a const assertion on a literal expression make all properties (also nested) of the object literal readonly. Try the last example:
+
+```ts
+const outer = {
+  inner: {
+    x: 0
+  }
+} as const;
+```
+
+```ts
+outer.inner = { x: 1 };
+       // ~~~ Cannot assign to 'inner'
+       //     because it is a read-only property.
+outer.inner.x = 1;
+       // ~~~ Cannot assign to 'x'
+       //     because it is a read-only property.
+```
+
+???
+Man kann "as const" mit Typen probieren, readonly properties werden damit aber nicht funktionieren. In Playground probieren:
+```ts
+interface Outer {
+  inner: {
+    x: number;
+  }
+}
+
+const outer: Outer = {
+  inner: {
+    x: 0
+  }
+} as const;
+
+outer.inner = { x: 1 };
+outer.inner.x = 1;
+```
 
 ---
 class: center, middle, inverse

@@ -47,14 +47,13 @@ __Table of Contents__
   * Type guards
   * Index and mapped types
   * Conditional types
-  * Utility types
+  * Utility types: Omit, Pick, etc.
 * Decorators
 * Mixins - composing partial behaviors
 * Types declarations
 * Latest TypeScript features
   * Optional chaining
   * Nullish coalescing
-  * Recursive type aliases
   * Support for ECMAScript private fields
 * Some best practice tips
   * Prefer unions of interfaces to interfaces of unions
