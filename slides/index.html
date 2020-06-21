@@ -24,8 +24,15 @@ background-image: url(../images/title-folie.jpeg)
 
 ???
 
-Ziel der Präsentation: Einführung in TypeScript zu geben, aber auch tiefe Einblicke hinter die Kulissen.
-Nach der heutigen Rowing-Session solltet ihr in der Lage sein, Software mit TypeScript zu schreiben.
+- TypeScript gewinnt seit letzten Jahren immer mehr an Bedeutung, nicht zuletzt durch die modernen Web-Frameworks, wie Angular und React.
+- Die modernen SPAs sind heutzutage nicht ohne TS wegzudenken.
+- TypeScript hat sich in den vergangenen Jahren rasant entwickelt und bringt mit jedem Release immer neue Features, teilweise ausgeklügelte Features.
+  Ich musste leider feststellen, dass die meisten Web-Entwickler, die sonst flott in Angular oder React sind, diese neuen Features nicht kennen.
+  In den meisten TS basierten Projekten reicht ein kleines Set an Sprachkonstrukten, wie Klassen, Interfaces, Enums, Generics, Union-Typen,
+  optionale und readonly Properties. Viel mehr wird meistens nicht benutzt. Es ist aber durchaus interessant und nützlich auch fortgeschrittene
+  Konstukte und TS-Typen zu kennen, um sie geschickt in den TS basierten Projekten anwenden zu können.
+- Ziel der Präsentation: Einführung in TypeScript zu geben, aber auch tiefe Einblicke hinter die Kulissen zu gewähren.
+- Nach der heutigen Rowing-Session solltet ihr in der Lage sein, Software mit TypeScript zu schreiben.
     
 ---
     
@@ -68,7 +75,7 @@ Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-B
 - Wir werden noch gleich sehen, in welcher Beziehung TypeScript zu JavaScript steht.
 - Anders Hejlsberg ist der Vater von TS and ist massgebend an der Entwicklung beteiligt (kennt ihr ihn?).
 - zu OO: aber natürlich ist auch möglich, in TS funktional zu programmieren, ohne OOP.
-  TS ist ja ein Superset von JS, wo man normalerweise funtktional programmiert.
+  TS ist ja ein Superset von JS, wo man normalerweise functional programmiert.
 
 ---
 
@@ -1788,6 +1795,91 @@ const outer: Outer = {
 outer.inner = { x: 1 };
 outer.inner.x = 1;
 ```
+
+---
+
+# Excess property checks
+
+TypeScript has a feature called "Excess property checks". The aim of this feature is a typos detection when a type isn't expecting a specific property.
+Assume, we have an interface `Circle` and a function `drawCircle`.
+
+```ts
+interface Circle {
+  color?: string;
+  radius?: number;
+}
+
+function drawCircle(rect: Circle) {
+  // ...
+}
+```
+
+Now, if we call this function with an object literal having a typo _colour_ instead of the property name _color_, we will see
+
+```ts
+drawCircle({ colour: "red", radius: 5 });
+  // ~~~ Argument of type '{ colour: string; radius: number; }'
+  //     is not assignable to parameter of type 'Circle'.
+  //     Object literal may only specify known properties,
+  //     but 'colour' does not exist in type 'Circle'.
+  //     Did you mean to write 'color'?
+```
+
+---
+
+# Excess property checks
+
+TypeScript assumes here, it is probably a bug in this code. You have probably a typo when passing an object literal
+with an unknown property __although__ all properties were optional! How to fix that?
+
+__1.__ Use a type assertion
+
+```ts
+drawRectangle({ radius: 100, opacity: 0.5 } as Circle);
+```
+
+__2.__ Add a string index signature if you're sure that the object can have some extra properties.
+
+```ts
+interface Circle {
+  color?: string;
+  radius?: number;
+  [propName: string]: any;
+}
+```
+
+???
+
+Bei index signature sagen wir: Im Interface Circle können wir eine beliebige Anzahl von Properties haben und solange sie nicht "color" und "radius" sind,
+ist der Type dieser Properties uns egal. In Playground prüfen (neues Interface Circle dort einsetzen -> der Compiler Fehler soll weg sein).
+
+---
+
+# Excess property checks
+
+__3.__ Assign the object literal to another variable (recommended way).
+
+```ts
+const rect = { colour: "red", radius: 5 };
+drawRectangle(rect);
+```
+
+The above workaround will work as long as you have a common property between the `rect` variable and `Circle` interface. In this example, it was the property `radius`.
+
+It will however, fail if the variable does not have any common object property. For example:
+
+```ts
+const rect = { colour: "red" };
+drawRectangle(rect);
+  // ~~~ Type '{ colour: string; }' has
+  //     no properties in common with type 'Circle'
+```
+
+???
+
+Hier wird der "Excess property check" ausgehebelt (obwohl der Schreibfehler mit "colour" immer noch besteht).
+Es funktioniert aber ähnlich, wie wir eine Klassen-Instanz an eine Methode passen, wo als Parameter eine Super-Klasse
+oder ein Interface mit weniger Properties erwartet wird.
 
 ---
 class: center, middle, inverse
