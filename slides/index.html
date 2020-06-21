@@ -2218,6 +2218,85 @@ let rect = create<Rectangle>(Rectangle);
 
 ---
 
+# Union types
+
+A __union type__ describes a value that can be one of many types. The vertical bar `|` is used as
+separator for each type the value can have. For instance,
+
+```ts
+number | string
+```
+
+is the type of a value that can be a number or string. For such values, we can only access members that are
+common to all types in the union.
+
+The following code works because the `length` property exists on both strings and arrays:
+
+```ts
+let value: string | string[] = 'some';
+
+const length = value.length;
+```
+
+---
+
+# Union types
+
+The next code snippet gives an error because the `model` property does not exist on the `Bike` type:
+
+```ts
+interface Bike {
+  gears: number;
+}
+
+interface Car {
+  gears: number;
+  model: string;
+}
+```
+
+```ts
+let transport: Bike | Car = {gears: 1};
+
+transport.model = "Audi"; // compiler error
+```
+
+---
+
+# Intersection types
+
+An intersection type combines multiple types into one. This allows you to add together existing types to get a single type that has all the features you need.
+
+```ts
+type intersection = Person & Serializable & Loggable;
+```
+
+`intersection` is a `Person` __and__ `Serializable` __and__ `Loggable`. That means an object of this type will have all members of all three types.
+Next example:
+
+```ts
+interface IStudent {
+  id: string;
+  age: number;
+}
+
+interface IWorker {
+  companyId: string;
+}
+
+type A = IStudent & IWorker; // define an intersection type A
+let x: A = {
+  id: 'ID3241',
+  age: 5,
+  companyId: 'CID5241'
+};
+```
+
+???
+Probieren, in Playground eine andere Property zu x hinzufügen => Fehler
+
+---
+
 # _keyof_ operator
 
 ---

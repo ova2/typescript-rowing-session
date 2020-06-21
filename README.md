@@ -41,8 +41,9 @@ __Table of Contents__
   * _this_ in functions and callbacks
 * Generics
 * Undestand type widening and narrowing
+* Union types
+* Intersection types
 * _keyof_ operator
-* Unions and intersection types
 * Advanced types
   * Type guards
   * Index and mapped types
