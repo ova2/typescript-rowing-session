@@ -51,7 +51,7 @@ __Table of Contents__
   * Utility types: Omit, Pick, etc.
 * Decorators
 * Mixins - composing partial behaviors
-* Types declarations
+* Type definition files
 * Latest TypeScript features
   * Optional chaining
   * Nullish coalescing

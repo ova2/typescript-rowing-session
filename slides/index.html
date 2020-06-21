@@ -2212,9 +2212,175 @@ let rect = create<Rectangle>(Rectangle);
 
 # Undestand type widening and narrowing
 
+At runtime every variable has a single value. But at static analysis time, when TypeScript is checking your code,
+a variable has a set of _possible_ values, depending on type. When you initialize a variable with a constant but
+don't provide a type, the type checker needs to decide on one. In other words, it needs to decide on a set of possible
+values from a single value that you specified. In TypeScript, this process is known as __widening__. Example:
+
+```ts
+let mixed = ['x', 1];
+```
+
+What should the type of `mixed` be? Here are a few possibilities:
+
+```
+('x' | 1)[]
+['x', 1]
+[string, number]
+(string, number)[]
+[any, any],
+any[]
+...
+```
+
+Without more context, TypeScript has no way to know which one is "right". It has to quess. The decision in this case: `(string|number)[]`.
+
+???
+- Das ist ein komplexes Thema, so dass wir nicht alles in Details im Rahmen dieses Vortrages beleuchten können.
+Unser Ziel ist hier ein wenig zu verstehen, wie der TS Compiler arbeitet, wenn er die Typen aus dem Code ableitet.
+- TS muss entscheiden, welche möglichen Werte eine Variable annehmen kann, wenn kein Typ explizit definiert wurde.
+Das hat gewisse Überschneidung mit dem Thema Type Inference (wurde besprochen). Aber hier wollen, wie gesagt, verstehen,
+wie der TS Compliler die Entscheidungen bzgl. Typen trifft.
+
 ---
 
 # Undestand type widening and narrowing
+
+Suppose, you're writing a library to work with vectors.
+
+```ts
+interface Vector3 {
+  x: number;
+  y: number;
+  z: number;
+}
+
+function getComponent(vector: Vector3, axis: 'x' | 'y' | 'z') {
+  return vector[axis];
+}
+```
+
+When we try to use it as follows, TypeScript shows an error (but there are no erros in JavaScript, the code runs fine).
+
+```ts
+let x = 'x';
+let vec = { x: 10, y: 20, z: 30 };
+
+getComponent(vec, x);
+    // ~~~ Argument of type 'string' is not assignable
+    //     to parameter of type '"x" | "y" | "z"'
+```
+
+---
+
+# Undestand type widening and narrowing
+
+The type of `x` is inferred as `string` because TypeScript chooses to allow code like this:
+
+```ts
+let x = 'x';
+x = 'Some string';
+x = 'Hello world';
+```
+
+TypeScript attempts to strike a balance between specificity and flexibility. There are a few ways to control
+the process of widening. One is __const__. If you declare a variable with `const` instead of `let`, it gets
+a narrower type. In the example, the error will be gone.
+
+```ts
+const x = 'x';
+let vec = { x: 10, y: 20, z: 30 };
+getComponent(vec, x); // OK
+```
+
+`const` can be used with arrays too to avoid widening.
+
+```ts
+const a1 = [1, 2, 3]          // Type is number[]
+const a2 = [1, 2, 3] as const // Type is readonly [1, 2, 3]
+```
+
+???
+- TS versucht, eine Balance zwischen Genauigkeit (sprich spezialisierte Typen) und Flexibilität (sprich generalisierte Typen) zu finden.
+- Mit const ist der Type spezialisierter als mit let. Mit const ist der Fehler von vorhin verschwinden.
+
+---
+
+# Undestand type widening and narrowing
+
+The opposite of widening is __narrowing__. This is a process by which TypeScript goes from a broad type to a narrower one.
+There are many ways how you can narrow a type. Just to mention a few:
+
+__1__. Using `instanceof` and `typeof` operators.
+
+```ts
+function contains(text: string, search: string | RegExp) {
+  if (search instanceof RegExp) {
+    return !!search.exec(test); // Type is RegExp
+  }
+  return text.includes(search); // Type is string
+}
+```
+
+__2__. Using built-in functions such as `Array.isArray`.
+
+```ts
+function contains(text: string, terms: string | string[]) {
+  if (Array.isArray(terms)) {
+    return terms.some(term => text.includes(term));
+  }
+  return text.includes(terms); // Type is string
+}
+```
+
+???
+narrowing = Verengung von Typen. Das ist ein Prozess, wie aus einem breiten Typ ein enger, spezifischer Typ entsteht.
+
+---
+
+# Undestand type widening and narrowing
+
+__3__. Using property check.
+
+```ts
+interface A { a: number }
+interface B { b: number }
+
+function pickAB(ab: A | B) {
+  if ('a' in ab) {
+    // ab is of type A
+  } else {
+    // ab is of type B
+  }
+  // ab is of type A | B
+}
+```
+
+---
+
+# Undestand type widening and narrowing
+
+__4__. Using pattern "discriminated union".
+
+```ts
+interface UploadEvent { type: 'upload'; filename: string; ... }
+interface DownloadEvent { type: 'download'; filename: string; ... }
+
+type AppEvent = UploadEvent | DownloadEvent;
+
+function handleEvent(e: AppEvent) {
+  switch (e.type) {
+    case: 'download':
+      // Type of e is DownloadEvent
+      break;
+    case: 'upload':
+      // Type of e is UploadEvent
+      break;
+  }
+}
+```
+
+__5__. Using "user-defined type guards". Type guards will be discussed later on.
 
 ---
 
@@ -2298,6 +2464,54 @@ Probieren, in Playground eine andere Property zu x hinzufügen => Fehler
 ---
 
 # _keyof_ operator
+
+It is worth to mention the __keyof__ operator. By using the __keyof__ keyword,
+we can create a type representing all property keys, which is a union of string literal types.
+
+*Definition*: For any type `T`, `keyof T` is the union of known, public property names of `T`.
+
+```ts
+type UserRole = 'admin' | 'moderator' | 'author';
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  role: UserRole;
+}
+
+type UserKeysType = keyof User; // UserKeysType is an union
+                                // 'id' | 'name' | 'email' | 'role'
+```
+
+---
+
+# _keyof_ operator
+
+Practical example with Generics.
+
+```ts
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+```
+
+`K extends keyof T` means a specific property of `T`.
+
+By using this helper we can ensure that the property exists when using it.
+
+```ts
+const pets = {
+ dog: { name: 'Urmel' },
+ cat: { name: 'Baghira' }
+};
+
+getProperty(pets, 'dog');
+getProperty(pets, 'cat');
+getProperty(pets, 'someoneelse');
+    // ~~~ Argument of type '"someoneelse"' is not assignable
+    //     to parameter of type '"dog" | "cat"'
+```
 
 ---
 class: center, middle, inverse
