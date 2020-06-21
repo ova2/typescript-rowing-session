@@ -1325,6 +1325,7 @@ Deshalb gibt es keine Fehler vom TS Compiler.
 # Similarities and differences between type and interface
 
 If you want to define a named type in TypeScript, you have two options. You can use a __type__
+(it doesn't create a new type, and is therefore called a _type alias_).
 
 ```ts
 type State = {
@@ -1343,6 +1344,10 @@ interface State = {
 ```
 
 Which should you use, `type` or `interface`? It depends...
+
+???
+
+Type alias beginnt mit dem Schlüsselwort "type".
 
 ---
 
@@ -1583,7 +1588,8 @@ a = b; // Compiler error:
 
 # Type inference
 
-Type inference in complex objects:
+As you see, the type can be omitted if the compiler is able to infer it. TypeScript improves the type inference continuously.
+It tries to guess a best common type when elements of several types are present in an array.
 
 ```ts
 let x = [0, 'a', null];
@@ -1592,8 +1598,38 @@ let x = [0, 'a', null];
 inferred as
 
 ```ts
-(string | number | null)[]
+(number | string | null)[]
 ```
+
+Next example with complex objects.
+
+```ts
+class Sheepdog extends Dog {
+  ...
+}
+
+let animal = [new Dog(), new Sheepdog()];
+```
+
+The type of the variable `animal` is `Dog[]`.
+
+---
+
+# Type inference
+
+Quiz: What do you think, what is the type of `animal` here?
+
+```ts
+class Fish {
+  kind: string;
+}
+
+let animal = [new Dog(), new Sheepdog(), new Fish()];
+```
+
+--
+
+The best common type of the next array is `(Dog | Fish)[]` because the class `Fish` doesn't extend to any other class.
 
 The return type of a function is also inferred by the returning value.
 
@@ -1880,6 +1916,309 @@ drawRectangle(rect);
 Hier wird der "Excess property check" ausgehebelt (obwohl der Schreibfehler mit "colour" immer noch besteht).
 Es funktioniert aber ähnlich, wie wir eine Klassen-Instanz an eine Methode passen, wo als Parameter eine Super-Klasse
 oder ein Interface mit weniger Properties erwartet wird.
+
+---
+
+# Functions
+
+Parameters and return values in the function signature can be typed too. Types protects you
+against JavaScript errors during function execution because the compiler warns you
+punctually at build time when the wrong types are used:
+
+```ts
+function add(x: number, y: number): number {
+  return x + y;
+}
+```
+
+__Function type__ is a way to declare the type of a function. To explicitly declare a function type,
+you should use
+
+- the keywords `let` or `const`
+- a variable name
+- a colon
+- a parameter list
+- a fat arrow `=>`
+- and the function's return type
+
+```ts
+let fetchName: (division: Division, customer: Customer) => string;
+```
+
+???
+
+- Wir haben bereits mehrere Beispiele von Funktionen gesehen, aber noch nicht genau die Funktionen in TS besprochen.
+- fat arrow (der fette Pfeil) muss vor dem Typ des Rückgabewertes in Funktion-Deklarationen stehen.
+  In den Funktion-Definitionen (also bei der Implementierung einer Funktion) wird ein Doppelpunkt verwendet.
+- Die Funktion fetchName ist hier als folgt deklariert: sie hat zwei Parameter vom Typ Division und Customer entsprechend und einen Rückgabewert vom Typ string.
+
+---
+
+# Functions
+
+Now, you must provide an implementation of this declaration:
+
+```ts
+fetchName = function (division: Division,
+                      customer: Customer): string {
+  // do something
+}
+```
+
+This technique is especially useful for callbacks. Imagine a filter function which filters
+arrays by some criterion. An exact criterion can be encapsulated in the passed in callback
+function that acts as predicate:
+
+```ts
+function filter(arr: number[],
+                callback: (item: number) => boolean): number[] {
+  let result: number[] = [];
+  for (let i = 0; i < arr.length; i++) {
+    if (callback(arr[i])) {
+      result.push(arr[i]);
+    }
+  }
+  return result;
+}
+```
+
+---
+
+# Functions
+
+A possible function call with a specific callback could appear as follows:
+
+```ts
+let result = filter([1, 2, 3, 4], (item: number) => item > 3);
+```
+
+In TypeScript, every function parameter is assumed to be required. There are two ways to
+mark a parameter as optional.
+
+--
+
+__1__. Use a question mark after the parameter name:
+
+```ts
+function doSomething(param1: string, param2?: string) { ... }
+```
+
+__2__. Use the parameter's default value (ECMAScript 2015 feature), which gets applied when no value is provided:
+
+```ts
+function doSomething(param1: string, param2 = "some value") { ... }
+```
+
+Now, you are able to call this function with just one value.
+
+```ts
+doSomething("just one value");
+```
+
+???
+- Übergabewerte für optionale Parameter können bei Funktionsaufruf ausgelassen werden.
+- Wer kennt diese 2 Optionen, um einen Parameter einer Funktion optional zu machen? Mindestens eine Option sollte euch bekannt sein,
+  weil sie im ECMAScript Standard verankert ist und kann somit auch in JS verwendet werden.
+  Die andere Möglichkeit ist ein reines TS-Feature, und das haben wir schon übrigens kennengelernt.
+
+---
+
+# Functions
+
+Yet another feature of ECMAScript: In ECMAScript 2015 and TypeScript __rest__ parameters and __spread__ operator
+provide a convenient to work with variable number of arguments.
+
+```ts
+function varArgs(...args: number[]) {
+  console.log(args.length);
+  console.log(Math.max(...args));
+}
+```
+
+Check in TypeScript Playground:
+
+```ts
+varArgs(1, 5, 3, 0);
+```
+
+This feature also works with arrow functions (another ECMAScript 2015 feature).
+
+```ts
+let varArgs = (...args: any[]) => {
+  console.log(...args);
+}
+```
+
+???
+- Mit der Rest Parameter Syntax kann man beliebig viele Parameter als Array empfangen.
+- Der Spread Operator erlaubt ein Array von Elementen (oder ein beliebiges iterierbares Objekt von Elementen) in einzelne Elemente zu "entpacken"
+  Mit der Spread-Syntax kann ein einzelner Ausdruck dort expandiert werden, wo mehrere Argumente oder Elemente oder Variablen erwartet werden.
+
+---
+
+# Function overloading
+
+TypeScript provides the concept of function overloading. You can have multiple functions with the same name
+but different parameter types and return type. However, __the number of parameters should be the same__.
+
+```ts
+function reverse(string: string): string;
+function reverse<T>(array: T[]): T[];
+function reverse<T>(stringOrArray: string | T[]): string | T[] {
+  return typeof stringOrArray === "string"
+    ? stringOrArray
+        .split("")
+        .reverse()
+        .join("")
+    : stringOrArray.slice().reverse();
+}
+```
+
+The first two lines of the above example list the valid overloads of the reverse function. They are visible for the callers (check autocompletion!).
+On the third line, we specify the generic "internal" signature, which must be compatible with all specified overloads.
+The implementation itself, which is typed using union types, doesn't show up in the autocompletion.
+
+???
+Autocompletion in TS Playground prüfen
+
+---
+
+# _this_ in functions and callbacks
+
+In JavaScript, __this__ is a variable that's set when a function is called.
+You can run into errors with `this` in callbacks, when you pass functions to a library that will later call them.
+Because the library that calls your callback will call it like a normal function, `this` will be `undefined`.
+
+TypeScript allows to explicitly specify the type of `this` in functions. This way we can tell the compiler that what the intended type
+of `this` will be during execution time. Assume, a library author annotates the callback type with `this`.
+
+```ts
+interface UIElement {
+  addClickListener(onclick: (this: void, e: Event) => void): void;
+}
+```
+
+__this: void__ means that `addClickListener` expects `onclick` to be a function that does not require a `this` type.
+This is a __contract__ of `onclick` for all consumers of this library.
+
+__Tip__: To enforce that `this` types are always explicitly annotated in functions use the compiler option __noImplicitThis__.
+
+???
+Ihr könnet eine explizite Angabe von this in den Funktionen mit der Compiler Option "noImplicitThis" erzwingen. In TS Playground zeigen.
+
+---
+
+# _this_ in functions and callbacks
+
+Assume, a consumer of this library defines a handler class with an onclick handler (acts as callback which gets called when an UI element is clicked).
+
+```ts
+class Handler {
+  info: string;
+  onClick(this: Handler, e: Event) {
+    this.info = e.message
+  }
+}
+
+let handler = new Handler();
+uiElement.addClickListener(handler.onClick); // error at compile time
+```
+
+`this` in the `onClick` is to be expected of type `Handler` => error at compile time. Without __this: Handler__ in the `onClick` there is an error at runtime.
+To fix the error, change the type of `this`:
+
+```ts
+class Handler {
+  info: string;
+  onClick(this: void, e: Event) {
+    console.log('clicked!');
+  }
+}
+```
+
+???
+this kann jetzt nicht innerhalb der Methode onClick benutzt werden. Das entspricht der Callback-Deklaration in addClickListener.
+
+---
+
+# Generics
+
+In TypeScript, you can define generic functions, interfaces, and classes like in other
+programming languages. A generic function has type parameters listed in angle brackets:
+
+```ts
+function reverseAndMerge<T>(arr1: T[], arr2: T[]): T[] {
+  return arr1.reverse().concat(arr2.reverse());
+}
+
+let arr1: number[] = [1, 2, 3];
+let arr2: number[] = [4, 5, 6];
+let arr = reverseAndMerge(arr1, arr2);
+```
+
+Such generic functions can be defined with generic interfaces as well. The function
+signature for `reverseAndMerge` is compatible with the following generic interface:
+
+```ts
+interface GenericArrayFn<T> {
+  (arr1: T[], arr2: T[]): T[];
+}
+
+let arr: GenericArrayFn<number> = reverseAndMerge;
+```
+
+---
+
+# Generics
+
+Note that the generic type parameter list in angle brackets follows the name of the function
+and interface. This is also true for classes:
+
+```ts
+class GenericValue<T> {
+  constructor(private value: T) { }
+  increment: (x: T) => T;
+  decrement: (x: T) => T;
+}
+
+let genericValue = new GenericValue<number>(5);
+genericValue.increment = function (x) {return ++x;};
+genericValue.decrement = function (x) {return --x;};
+```
+
+When creating factories in TypeScript using generics, it is necessary to refer to class types by their constructor functions.
+
+```ts
+function create<T>(c: { new(): T; }): T {
+  return new c();
+}
+```
+
+???
+new() gekennzeichnet einen Constructor, welcher in diesem Fall eine Klassen-Instanz von einem generischen Typ T erzeugt.
+In Playground zeigen:
+```ts
+function create<T>(c: { new(): T; }): T {
+  return new c();
+}
+
+class Rectangle {
+}
+
+let rect = create<Rectangle>(Rectangle);
+```
+
+---
+
+# Undestand type widening and narrowing
+
+---
+
+# Undestand type widening and narrowing
+
+---
+
+# _keyof_ operator
 
 ---
 class: center, middle, inverse
