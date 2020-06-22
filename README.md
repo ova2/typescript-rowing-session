@@ -41,12 +41,14 @@ __Table of Contents__
   * _this_ in functions and callbacks
 * Generics
 * Undestand type widening and narrowing
+* User defined type guards
 * Union types
 * Intersection types
-* _keyof_ operator
-* Advanced types
-  * Type guards
-  * Index and mapped types
+* Index types
+  * _keyof_ operator (index type query operator)
+  * Indexed access operator
+* Other advanced types
+  * Mapped types
   * Conditional types
   * Utility types: Omit, Pick, etc.
 * Decorators

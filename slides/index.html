@@ -2380,7 +2380,121 @@ function handleEvent(e: AppEvent) {
 }
 ```
 
-__5__. Using "user-defined type guards". Type guards will be discussed later on.
+__5__. Using "user defined type guards".
+
+---
+
+# User defined type guards
+
+JavaScript doesn't have very rich runtime introspection support built in. When you are using just plain JavaScript Objects, you do not even have access to `instanceof` or `typeof`.
+For these cases you can create __user defined type guard__ functions. User defined type guard is just a function that returns a type predicate in the form of
+
+```ts
+someArgumentName is SomeType
+```
+
+in place of a return type. For example:
+
+```ts
+function handle(event: any): event is MouseEvent {
+  // body that returns boolean
+}
+```
+
+If the function returns `true`, TypeScript will narrow the type to `MouseEvent` in any block guarded by a call to the function.
+In other words, the type will be more specific. `event is MouseEvent` ensures the compiler that the event passed into the type guard is in fact a `MouseEvent`.
+
+???
+- User defined type guards können in conditional statements aufgerufen werden. Wäre z.B. die Funktion handle in einem if-statement aufgerufen,
+würde das event Objekt in dem if-block selbst vom Typ MouseEvent für den TS Compiler. Es findet hier also ein Type narrowing im Code ohne Type Cast
+(d.h. ein automatischer Type-Cast von any Type auf MouseEvent).
+- Hier ist wichtig to verstehen, dass der Predicate (Rückgabewert) zur Kompilierzeit evaluiert wird.
+Funktionskörper wird hingegen zur Laufzeit ausgeführt. Dieses Zusammenspiel ermöglicht es, dass wir ohne Casten auf spezifische Typen
+programmieren können, ohne dass die Exceptions zur Laufzeit auftreten,
+wenn der Programmfluss z.B. in einen if-block reinläuft.
+
+---
+
+# User defined type guards
+
+Let's define two classes `Dog` and `Cat`.
+
+```ts
+class Pet {
+}
+
+class Dog extends Pet {
+  bark() {
+    console.log('woof');
+  }
+}
+
+class Cat extends Pet {
+  purr() {
+    console.log('meow');
+  }
+}
+```
+
+---
+
+# User defined type guards
+
+```ts
+// user defined type guard
+function isDog(test: any): test is Dog {
+  return test instanceof Dog;
+}
+
+function example(foo: any) {
+  if (isDog(foo)) {
+    // foo is type as a Dog in this block
+    foo.bark();
+  } else {
+    // foo is type any in this block
+    console.log("unknown foo");
+  }
+}
+
+example(new Dog());
+example(new Cat());
+```
+
+This prints:
+
+```
+woof
+unknown foo
+```
+
+---
+
+# User defined type guards
+
+__Keep in mind__
+
+- The function's return type is used at compile time to narrow types.
+- The function body is used at runtime.
+
+Type guard functions can use more complicated logic. E.g. `instanceof` doesn't work with interfaces because they don't exist in runtime =>
+check if an object property exists.
+
+```ts
+interface Bird { fly(); }
+
+interface Fish { swim(); }
+
+function isFish(pet: Fish | Bird): pet is Fish {
+  return (pet as Fish).swim !== undefined;
+}
+
+...
+if (isFish(pet)) {
+  pet.swim();
+} else {
+  pet.fly();
+}
+```
 
 ---
 
@@ -2463,9 +2577,9 @@ Probieren, in Playground eine andere Property zu x hinzufügen => Fehler
 
 ---
 
-# _keyof_ operator
+# Index types: _keyof_ operator
 
-It is worth to mention the __keyof__ operator. By using the __keyof__ keyword,
+It is worth to mention the __keyof__ operator, also called the __index type query operator__. By using the __keyof__ keyword,
 we can create a type representing all property keys, which is a union of string literal types.
 
 *Definition*: For any type `T`, `keyof T` is the union of known, public property names of `T`.
@@ -2486,7 +2600,7 @@ type UserKeysType = keyof User; // UserKeysType is an union
 
 ---
 
-# _keyof_ operator
+# Index types: _keyof_ operator
 
 Practical example with Generics.
 
@@ -2512,6 +2626,74 @@ getProperty(pets, 'someoneelse');
     // ~~~ Argument of type '"someoneelse"' is not assignable
     //     to parameter of type '"dog" | "cat"'
 ```
+
+---
+
+# Index types: indexed access operator
+
+__Indexed access operator__ allow accessing the type of a property and assigning it to a different type.
+
+```ts
+interface I {
+  a: string;
+  b: number;
+}
+```
+
+It's possible to get the type of property `a` simply by accessing it.
+
+```ts
+type PropertyA = I['a'];
+// PropertyA = string
+```
+
+It's also possible to pass multiple properties as a union, which yields a union of the respective property types.
+
+```ts
+type PropertyTypes = I['a' | 'b'];
+// PropertyTypes = string | number
+```
+
+---
+
+# Index types: indexed access operator
+
+The same result can be achieved with `keyof`:
+
+```ts
+type PropertyTypes = I[keyof I];
+// PropertyTypes = string | number
+```
+
+Accessing a property that doesn't exist would lead to an error.
+
+```ts
+type PropertyA = I['nonexistent'];
+     // ~~~ Property 'nonexistent' does not exist on type 'I'
+```
+
+???
+Prüfen die Fehlermeldung in Playground
+
+---
+
+# Mapped types
+
+
+---
+
+# Mapped types
+
+
+---
+
+# Conditional types
+
+
+---
+
+# Utility types: Omit, Pick, etc.
+
 
 ---
 class: center, middle, inverse
