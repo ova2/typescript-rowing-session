@@ -50,6 +50,7 @@ __Table of Contents__
 * Other advanced types
   * Mapped types
   * Conditional types
+    * Type inference in conditional types
   * Utility types: Omit, Pick, etc.
 * Decorators
 * Mixins - composing partial behaviors

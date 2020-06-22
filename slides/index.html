@@ -2762,13 +2762,172 @@ Sie sind alle gleich, und zwar boolean.
 
 ---
 
+# Mapped types
+
+Complex example. Task: wrap every object property in a `Proxy<T>` class.
+
+```ts
+type Proxy<T> = {
+  get(): T;
+  set(value: T): void;
+}
+
+type Proxify<T> = {
+  [P in keyof T]: Proxy<T[P]>;
+}
+
+function proxify<T>(o: T): Proxify<T> {
+  // ... wrap proxies ...
+}
+
+let proxyProps = proxify(props);
+```
+
+???
+T[P] ist "indexed access operator", den wir bereits kennengelernt haben
+
+---
+
 # Conditional types
 
+A conditional type selects one of two possible types based on a condition expressed as a type relationship test:
+
+```ts
+T extends U ? X : Y
+```
+
+The type above means when `T` is assignable to `U` the type is `X`, otherwise the type is `Y`. Concrete example:
+
+```ts
+T extends Function ? string : boolean
+```
+
+Usage:
+
+```ts
+class SomeClass<T> {
+  // if the parameter p is a function, the return type is string,
+  // if not it's boolean
+  someFunction<T>(p: T): T extends Function ? string : boolean;
+}
+```
+
+---
+
+# Conditional types
+
+```ts
+class AnotherClass<T> {
+  // if T is assignable to Foo, the value is number, otherwise string
+  someValue: T extends Foo ? number : string;
+}
+```
+
+Conditional types have a special case, namely if the type parameter to a conditional type is a union.
+It's called a __distributive conditional type__. In that case, the conditional type is applied separately to each type making up the union.
+
+```ts
+type T1<T> = T extends string ? string : boolean;
+type Union = 'a' | 'b' | true;
+type T2 = T1<Union>;
+// T2 = string | boolean
+```
+
+What happens here is that `T1` is applied separately to `'a'`, `'b'` and `true` and the results combined back to a union,
+which yields `string | string | boolean`. The two strings can be combined, so the end result is `string | boolean`.
+
+---
+
+# Type inference in conditional types
+
+Within the `extends` clause of a conditional type, it is now possible to have __infer__ declarations
+that introduce a type variable to be inferred. Such inferred type variables may be referenced in the true branch of the conditional type.
+
+For example, the following extracts the return type of a function type:
+
+```ts
+type ReturnType<T> = T extends (...args: any[]) => infer R ? R : any;
+```
+
+Usage:
+
+```ts
+type T0 = ReturnType<() => string>;  // string
+type T1 = ReturnType<(s: string) => void>;  // void
+```
+
+Another example:
+
+```ts
+type First<T> = T extends [infer U, ...unknown[]] ? U : never;
+
+type SomeTupleType = [string, number, boolean];
+type FirstElementType = First<SomeTupleType>; // string
+```
 
 ---
 
 # Utility types: Omit, Pick, etc.
 
+TypeScript provides several utility types to facilitate common type transformations.
+Available in the standard library __lib.d.ts__.
+
+Full documentation: <a href="https://www.typescriptlang.org/docs/handbook/utility-types.html">Utility Types</a>.
+
+We already met `Partial<T>` and `Readonly<T>`. Let's meet `Omit` and `Pick`.
+
+`Omit<T, K>` constructs a type by picking all properties from `T` and then removing `K`.
+
+```ts
+interface Todo {
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+type TodoPreview = Omit<Todo, 'description'>;
+
+const todo: TodoPreview = {
+  title: 'Clean room',
+  completed: false,
+};
+```
+
+???
+Omit und Pick sind die Utilities, die ich sehr oft nutze. Omit wählt ein Property-Set aus und dann löscht bestimmt Properties aus diesem Set.
+Das Ergebnis ist ein entschlanktes Property-Set aus der ursprünglich grosseren Propety-Menge.
+
+---
+
+# Utility types: Omit, Pick, etc.
+
+`Pick<T, K>` constructs a type by picking the set of properties `K` from `T`.
+
+```ts
+interface Todo {
+  title: string;
+  description: string;
+  completed: boolean;
+}
+
+type TodoPreview = Pick<Todo, 'title' | 'completed'>;
+
+const todo: TodoPreview = {
+  title: 'Clean room',
+  completed: false,
+};
+```
+
+Another utility types:
+
+- __Exclude<T, U>__ – Exclude from T those types that are assignable to U.
+- __Extract<T, U>__ – Extract from T those types that are assignable to U.
+- __NonNullable<T>__ – Exclude null and undefined from T.
+- __ReturnType<T>__ – Obtain the return type of a function type.
+- __InstanceType<T>__ – Obtain the instance type of a constructor function type.
+
+???
+Pick pickt ein Sub-Set von Properties von einem grosseren Property-Set heraus. So gesehen, ist Pick somit ein Gegenteil von Omit.
 
 ---
 class: center, middle, inverse
