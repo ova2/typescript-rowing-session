@@ -2679,11 +2679,86 @@ Prüfen die Fehlermeldung in Playground
 
 # Mapped types
 
+A common task is to take an existing type and make each of its properties optional or readonly. For example, from
+
+```ts
+interface Person {
+  name: string;
+  age: number;
+}
+```
+
+we might want
+
+
+```ts
+interface PersonPartial {
+  name?: string;
+  age?: number;
+}
+
+interface PersonReadonly {
+  readonly name: string;
+  readonly age: number;
+}
+```
 
 ---
 
 # Mapped types
 
+TypeScript provides a way to create new types based on old types, called __mapped types__.
+In a mapped type, the new type transforms each property in the old type in the same way.
+
+With mapped types, we can rewrite the two examples above as
+
+```ts
+type Readonly<T> = {
+  readonly [P in keyof T]: T[P];
+}
+
+type Partial<T> = {
+  [P in keyof T]?: T[P];
+}
+```
+
+and use them as
+
+```ts
+type PersonPartial = Partial<Person>;
+type ReadonlyPerson = Readonly<Person>;
+```
+
+---
+
+# Mapped types
+
+Let’s take a look at the simplest mapped type and its parts in details:
+
+```ts
+type Keys = 'option1' | 'option2';
+type Flags = { [K in Keys]: boolean };
+```
+
+This is equivalent to
+
+```ts
+type Flags = {
+  option1: boolean;
+  option2: boolean;
+}
+```
+
+There are three parts:
+
+- The type variable `K`, which gets bound to each property in turn. It is achieved by the keyword `in`.
+- The string literal union `Keys`, which contains the names of properties to iterate over.
+- The resulting type of the property (here `boolean`).
+
+???
+Die Variable K nimmt jeden Wert in Union Keys, d.h. option1, dann option2. Das wird mit dem Schlüsselwort "in" erreicht.
+Diese Namen bilden die Property-Namen im neuen Typ Flags. Und was sind die Typen von all diesen Properties in Flags?
+Sie sind alle gleich, und zwar boolean.
 
 ---
 
