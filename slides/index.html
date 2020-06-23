@@ -2930,6 +2930,232 @@ Another utility types:
 Pick pickt ein Sub-Set von Properties von einem grosseren Property-Set heraus. So gesehen, ist Pick somit ein Gegenteil von Omit.
 
 ---
+
+# Decorators
+
+__Decorators__ were proposed in ECMAScript 2016 (https://github.com/wycats/javascript-decorators).
+
+They are similar to Java annotations - they also add metadata to class declaration, method, property, and the function's parameter,
+but they are more powerful. They add new behaviors to their targets. With decorators, we can run arbitrary code before,
+after, or around the target execution, like in aspect-oriented programming, or even replace the target with a new definition.
+
+In TypeScript, you can decorate constructors, methods, properties, and parameters. Every decorator begins with the __@__ character followed by the
+name of the decorator.
+
+Let's implement a classic example with a logging functionality. We would like to implement a method decorator `@log`.
+A method decorator accepts three arguments:
+
+- an instance of the class on which the method is defined
+- a key for the property
+- and <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperty">the property descriptor</a>
+
+If the method decorator returns a value, it will be used as a new property descriptor for this method.
+
+???
+Decorators beginnen mit dem Add-Zeichen, das vor dem Namen des Decorators stehen muss.
+
+---
+
+# Decorators
+
+```ts
+const log = (target: Object, key: string | symbol,
+             descriptor: PropertyDescriptor) => {
+  // save a reference to the original method
+  var originalMethod = descriptor.value;
+  // replace the original function
+  descriptor.value = function(...args: any[]) {
+    console.log("Arguments: ", args.join(", "));
+    const result = originalMethod.apply(target, args);
+    console.log("Result: ", result);
+    return result;
+  }
+  return descriptor;
+}
+
+class Rectangle {
+  @log
+  area(height: number, width: number) {
+    return height * width;
+  }
+}
+
+let rect = new Rectangle();
+let area = rect.area(2, 3);
+```
+
+???
+Zeigen in TS Playground! Damit der Code mit den Decorators funktioniert, müssen aber zwei spezielle Compiler Optionen enabled werden.
+Decorators haben immer noch experimentellen Status, obwohl sie intensiv in Angular und den anderen Web-Frameworks verwendet werden.
+Das überrascht ein wenig, ist aber so.
+
+---
+
+# Decorators
+
+Decorators can be composed and customized with parameters too. You can write the following, for instance:
+
+```ts
+class Rectangle {
+  @log("debug")
+  @persist("localStorage")
+  area(height: number, width: number) {
+    return height * width;
+  }
+}
+```
+
+Angular offers different types of decorators that are used for dependency injection or
+adding metadata information at compilation time:
+
+- Class decorators such as `@NgModule`, `@Component`, and `@Injectable`
+- Property decorators such as `@Input` and `@Output`
+- Method decorators such as `@HostListener`
+- Parameter decorators such as `@Inject`
+
+---
+
+# Decorators
+
+TypeScript compiler is able to emit some design-time type metadata for decorators. To
+access this information, we have to install a Polyfill called __reflect-metadata__:
+
+```
+npm install reflect-metadata --save
+```
+
+As long as the reflect-metadata library has been imported, additional design-time type information will be exposed at runtime.
+We can now access, for example, the type of the property (`key`) on the `target` object as follows:
+
+```ts
+let typeOfKey = Reflect.getMetadata("design:type", target, key);
+```
+
+&#x2757;
+Refer to the official TypeScript documentation to learn more about decorators and reflect metadata API
+(https://www.typescriptlang.org/docs/handbook/decorators.html)
+
+&#x2757;
+Decorators are enabled by setting the compiler options `emitDecoratorMetadata` and `experimentalDecorators` to `true`.
+
+???
+Polyfill wird benötigt, weil Decorators, wie ich bereits gesagt habe, ein experimentales Feature ist,
+welches z.Z. von keinem Browser nativ unterstützt wird.
+
+---
+
+# Mixins - composing partial behaviors
+
+A
+
+```ts
+
+```
+
+---
+
+# Mixins - composing partial behaviors
+
+A
+
+```ts
+
+```
+
+---
+
+# Type definition files
+
+JavaScript programs written in native JavaScript don't have any type information. If you add a JavaScript library such as jQuery or Lodash
+to your TypeScript-based application and try to use it, the TypeScript compiler cannot find any type information and warn you with
+compilation errors. Compile-time safety, type checking, and context-aware code completion get lost.
+That is where __type definition files__ come into play.
+
+Type definition files provide type information for JavaScript code that is not statically typed.
+Type definition files ends with `.d.ts` and only contain definitions which are not emitted by TypeScript.
+
+The __declare__ keyword is used to add types to JavaScript code that exists somewhere. Let's take an example.
+TypeScript is shipped with the `lib.d.ts` library describing ECMAScript API. This type definition file is used automatically by the
+TypeScript compiler. The following declaration is defined in this file without implementation details:
+
+```ts
+declare function parseInt(s: string, radix?: number): number;
+```
+
+Now, when you use the parseInt function in your code, the TypeScript compiler ensures that your code uses
+the correct types and IDEs show context-sensitive hints when you're writing code.
+
+???
+Probieren in TS Playground ohne und mit declare: parseSomething(123) und dann parseSomething("Hello");
+```ts
+// declare function parseSomething(s: string, radix?: number): number
+
+parseSomething(123);
+```
+
+---
+
+# Type definition files
+
+Type definition files can be installed as dependencies under the
+`node_modules/@types` directory by typing the following command:
+
+```
+npm install @types/<library name> --save-dev
+```
+
+A concrete example for jQuery library is:
+
+```
+npm install @types/jquery --save-dev
+```
+
+&#x2757;
+In Angular, all type definition files are bundled with Angular npm
+packages and located under node_modules/@angular. There is no need
+to install such files separately like we did for jQuery. TypeScript finds
+them automatically.
+
+&#x2757;
+If you have to support old browsers, you have to set the compile target ES5. Assume you want to use some ES6 (ECMAScript 2015)
+features by adding Polyfills. In this case, you must tell the compiler that it should look for extended definitions
+in the `lib.es6.d.ts` or `lib.es2015.d.ts` file.
+
+```
+"lib": ["es2015", "dom"]  // settings in tsconfig.json
+```
+
+---
+
+# Latest TypeScript features. Optional chaining.
+
+TODO
+
+```ts
+
+```
+
+---
+
+# Latest TypeScript features. Nullish coalescing.
+
+TODO
+
+```ts
+
+```
+
+---
+
+# Latest TypeScript features. Support for ECMAScript private fields.
+
+TODO
+
+```ts
+
+```
+
+---
 class: center, middle, inverse
     
 # That's all folks, thanks for your attention!
