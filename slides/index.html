@@ -3046,20 +3046,139 @@ welches z.Z. von keinem Browser nativ unterstützt wird.
 
 # Mixins - composing partial behaviors
 
-A
+__Mixin__ is the process of combining multiple classes to a single target class. It is intended to overcome the limitations of single inheritance model of JavaScript.
+In TypeScript, we can't inherit or extend from more than one class with "extends" but mixins helps us to get around that.
+Mixins create partial classes which we can combine to form a single class that contains all the methods and properties from the partial classes.
+
+From a mathematical point of view, one can say that the classic, single super-class inheritance creates a tree. And mixin pattern creates a directed acyclic graph.
+
+| <img src="../images/tree.svg" width="100%"/> | <img src="../images/acyclic_graph.svg" width="70%"/> |
+|:---:|:---:|
+
+???
+- JavaScript unterstützt von der Sprache her, wie viele anderen Programmiersprachen auch, keine Mehrfachvererbung.
+  Mit dem Schlüsselwort "extends" kann man nur noch von einer Klasse die Methoden und die Properties erben.
+  TS ist ein typisiertes Superset von JS und hat diese Einschränkung auch.
+  Mixin ist ein Prozess, welcher diese Einschränkung umgeht, und eine Mehrfachvererbung in TypeScript ermöglicht.
+- Mixins ist also die Lösung, um neue Klassen aus mehreren anderen zu erstellen. Das ist eine Art "Composition", die uns erlaubt,
+  einzelne Klassen mit Behaviors wiederzuverwenden, indem man sie beliebig kombiniert. Die kombinierte Klasse enthält alle Methoden und Properties
+  der einzelnen Klassen.
+
+---
+
+# Mixins - composing partial behaviors
+
+Let's create a `Timestamped` mixin that tracks the creation date of an object in a `timestamp` property:
 
 ```ts
+// The type Constructor<T> is an alias for the construct signature
+// that describes a type which can construct objects
+// of the generic type T and whose constructor function accepts
+// an arbitrary number of parameters of any type.
+type Constructor<T = {}> = new (...args: any[]) => T;
 
+function Timestamped<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    timestamp = Date.now();
+  };
+}
+```
+
+???
+Wie man sieht, ein Mixin ist technisch eine Function, die eine anonyme Klasse zurückgibt. Hier ist das die function Timestamped.
+Die zurückgegebene Klasse erbt von der Klasse, die als Parameter an die Mixin function übergeben wird. Hier wird Base vom Typ TBase übergeben.
+"TBase extends Constructor" heisst, dass Base nichts anders ist, als eine beliebige Klasse, weil jede Klasse einen Constuctor hat.
+
+---
+
+# Mixins - composing partial behaviors
+
+Let's create a `User` class
+
+```ts
+class User {
+  name: string;
+
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+```
+
+and a new class by mixing `Timestamped` into `User`.
+
+```ts
+const TimestampedUser = Timestamped(User);
+
+// Instantiate the new `TimestampedUser` class
+const user = new TimestampedUser("John Doe");
+
+// We can now access properties from both the `User` class
+// and our `Timestamped` mixin in a type-safe manner
+console.log(user.name);
+console.log(user.timestamp);
+```
+
+???
+TS versteht Mixins Syntax und bietet hier Autocompletion. Prüfen in TS Playground.
+
+---
+
+# Mixins - composing partial behaviors
+
+Let's define another mixin with a constructor and use it.
+
+```ts
+function Tagged<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    tag: string | null;
+
+    constructor(...args: any[]) {
+      super(...args);
+      this.tag = null;
+    }
+  };
+}
+```
+
+```ts
+// Create a new class by mixing `Tagged` into `User`
+const TaggedUser = Tagged(User);
+
+// Instantiate the new `TaggedUser` class
+const user = new TaggedUser("John Doe");
+
+user.name = "Jane Doe";
+user.tag = "janedoe";
 ```
 
 ---
 
 # Mixins - composing partial behaviors
 
-A
+Mixin can have methods too because it returns a regular ES2015 class. E.g.
 
 ```ts
+function Activatable<TBase extends Constructor>(Base: TBase) {
+  return class extends Base {
+    isActivated = false;
 
+    activate() {
+      this.isActivated = true;
+    }
+
+    deactivate() {
+      this.isActivated = false;
+    }
+  };
+}
+```
+
+Let's compose all the mixins!
+
+```ts
+const SpecialUser = Activatable(Tagged(Timestamped(User)));
+const user = new SpecialUser("John Doe");
 ```
 
 ---
