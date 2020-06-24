@@ -3340,21 +3340,175 @@ let arrayItem = arr?.[42];
 
 # Latest TypeScript features. Nullish coalescing.
 
-
+The nullish coalescing operator __??__ is another upcoming ECMAScript feature.
+It is a logical operator that returns its right-hand side operand when its left-hand side operand is null or undefined,
+and otherwise returns its left-hand side operand.
 
 ```ts
+let x = foo ?? bar();
+```
 
+This is a new way to say that the value `foo` will be used when it's "present"; but when it's null or undefined, calculate `bar()` in its place.
+The above code is equivalent to
+
+```ts
+let x = (foo !== null && foo !== undefined) ?
+    foo :
+    bar();
+```
+
+---
+
+# Latest TypeScript features. Nullish coalescing.
+
+```ts
+const nullValue = null;
+const emptyText = ""; // falsy
+const someNumber = 42;
+
+const valA = nullValue ?? "default for A";
+const valB = emptyText ?? "default for B";
+const valC = someNumber ?? 0;
+
+console.log(valA); // "default for A"
+console.log(valB); // "" (as empty string is not null or undefined)
+console.log(valC); // 42
+```
+
+__Q:__ Why do we need nullish coalescing?
+
+__A:__ When using short-circuiting operator `&&` and `||`, we need to handle all `falsy` values such as
+<span style="color:red">`0`</span>, <span style="color:red">`NaN`</span>, <span style="color:red">`""`</span>.
+
+???
+NaN entsteht z.B. durch das Dividiren durch 0.
+
+---
+
+# Latest TypeScript features. Nullish coalescing.
+
+The `??` operator can replace uses of `||` when trying to use a default value.
+
+The following code snippet tries to fetch the volume that was last saved in `localStorage`; however, it has a bug because it uses `||`.
+
+```ts
+function initializeAudio() {
+  let volume = localStorage.volume || 0.5
+  // ...
+}
+```
+
+When `localStorage.volume` is set to `0`, the page will set the volume to `0.5` which is unintended.
+
+`??` avoids some unintended behavior from `0`, `NaN` and `""` being treated as `falsy` values.
+
+---
+
+# Latest TypeScript features. Support for ECMAScript private fields.
+
+TypeScript 3.8 brings support for ECMAScript's private fields. TypeScript's `private` modifier only works at compile time!
+Private fields with the `private` modifier can be accessed in the generated JavaScript at runtime.
+
+ECMAScript's private fields bring the truly support for privacy. Such fields can't be accessed or detected outside of the containing class.
+
+Private fields have a few _rules_:
+
+- Private fields start with a __#__ character.
+
+- Every private field name is uniquely scoped to its containing class.
+
+- TypeScript accessibility modifiers like `public` or `private` can't be used on private fields.
+
+---
+
+# Latest TypeScript features. Support for ECMAScript private fields.
+
+Example:
+
+```ts
+class Person {
+  #name: string
+
+  constructor(name: string) {
+    this.#name = name;
+  }
+
+  greet() {
+    console.log(`Hello, my name is ${this.#name}!`);
+  }
+}
+
+let jeremy = new Person("Jeremy Bearimy");
+
+jeremy.#name
+// ~~~~~
+// Property '#name' is not accessible outside class 'Person'
+// because it has a private identifier.
 ```
 
 ---
 
 # Latest TypeScript features. Support for ECMAScript private fields.
 
-TODO
+Another benefit of private fields is that uniqueness. For example, regular property declarations are prone to being overwritten in subclasses.
 
 ```ts
+class C {
+  foo = 10;
 
+  cHelper() {
+    return this.foo;
+  }
+}
+
+class D extends C {
+  foo = 20;
+
+  dHelper() {
+    return this.foo;
+  }
+}
+
+let instance = new D();
+console.log(instance.cHelper()); // prints '20'
+console.log(instance.dHelper()); // prints '20'
 ```
+
+---
+
+# Latest TypeScript features. Support for ECMAScript private fields.
+
+With private fields, you'll never have to worry about this, since each field name is unique to the containing class.
+
+```ts
+class C {
+  #foo = 10;
+
+  cHelper() {
+    return this.#foo;
+  }
+}
+
+class D extends C {
+  #foo = 20;
+
+  dHelper() {
+    return this.#foo;
+  }
+}
+
+let instance = new D();
+console.log(instance.cHelper()); // prints '10'
+console.log(instance.dHelper()); // prints '20'
+```
+
+---
+
+# Latest TypeScript features. Support for ECMAScript private fields.
+
+Browser support, see https://caniuse.com/#search=private%20fields
+
+![100%](../images/private-fields.png)
 
 ---
 class: center, middle, inverse
