@@ -3248,17 +3248,99 @@ in the `lib.es6.d.ts` or `lib.es2015.d.ts` file.
 
 # Latest TypeScript features. Optional chaining.
 
-TODO
+Optional chaining operator __?.__ is a new JavaScript operator, also available in TypeScript.
+Optional chaining lets us write code where TypeScript can immediately stop running some expressions if we run into a `null` or `undefined`.
+Let's write:
 
 ```ts
+let x = foo?.bar.baz();
+```
 
+This means:
+
+- when `foo` is defined, `foo.bar.baz()` will be computed
+- but when `foo` is `null` or `undefined`, just return `undefined`
+
+This is the same as
+
+```ts
+let x = (foo === null || foo === undefined) ?
+    undefined :
+    foo.bar.baz();
+```
+
+???
+- Neue JavaScript Sprachkonstrukte bringen signifikante Verbesserungen für Programmierer. Sie sind logischerweise auch in den letzten TS Versionen
+verfügbar, weil TS ein Superset von JS ist. Wird der JS Code für ältere Browser generiert wird, kann dieses Feature polyfilled werden.
+- Prüfen in TS Playground. Das Feature ist mit ES2020 verfügbar!
+- Der Optionale-Verkettungs-Operator (Optional Chaining) ?. ermöglicht es, einen Wert aus einer Eigenschaft tief innerhalb
+einer Verkettung von Objekt-Eigenschaften auszulesen, ohne dabei explizit überprüfen zu müssen, ob jede Referenz in der Kette valide ist.
+Operator funktioniert ähnlich wie der Verkettungs Operator ., außer dass er keinen Fehler bei einem null oder undefined Wert auswirft,
+sondern stattdessen den Ausdruck beendet und undefined zurückgibt. Wird er mit Funktionsaufrufen verwendet, wirft der Aufruf undefined zurück,
+wenn die Funktion nicht existiert.
+
+---
+
+# Latest TypeScript features. Optional chaining.
+
+Note that if `bar` is `null` or `undefined`, the code will still hit an error accessing `baz`. Let's check `bar` too.
+
+```ts
+foo?.bar?.baz();
+```
+
+This is the same as
+
+```ts
+if (foo && foo.bar) {
+  foo.bar.baz();
+}
+```
+
+It works with functions too.
+
+```ts
+let result = someClass.someMethod?.();
+```
+
+`result` is undefined if the method `someMethod` doesn't exist.
+
+???
+- Man sieht, wir sparen einiges an Schreibarbeit und der Code wirkt kompakter.
+- Verwendet man optionale Verkettung mit Funktionsaufrufen, wird der Ausdruck automatisch undefined zurückwerfen, sollte die Funktion nicht existieren.
+
+---
+
+# Latest TypeScript features. Optional chaining.
+
+```ts
+function doSomething(onContent, onError) {
+  try {
+    // ... do something with the data
+  }
+  catch (err) {
+    onError?.(err.message); // no exception if onError is undefined
+    // equivalent to
+    // if (onError) {
+    //   onError(err.message);
+    // }
+  }
+}
+```
+
+You can also use the optional chaining operator when accessing properties with an expression
+using the bracket notation of the property accessor. Array item access with optional chaining works as well.
+
+```ts
+let nestedProp = obj?.['prop' + 'Name'];
+let arrayItem = arr?.[42];
 ```
 
 ---
 
 # Latest TypeScript features. Nullish coalescing.
 
-TODO
+
 
 ```ts
 
