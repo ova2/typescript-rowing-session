@@ -3620,6 +3620,119 @@ Habe gar nicht gefragt, kennt ihr das Gleicheitszeichen mit drei Zeichen? Mit di
 Bsp: 0 == false gibt true, aber 0 === false gibt false.
 
 ---
+
+# Best practice tips. Use async functions instead of callbacks.
+
+Classic JavaScript modeled asynchronous behavior using callbacks.
+
+```ts
+function fetchURL(url: string, cb: (response: string) => void) {
+  cb(url);
+}
+
+// "pyramid of doom"
+fetchURL(url1, function(response1) {
+  fetchURL(url2, function(response2) {
+    fetchURL(url3, function(response3) {
+      console.log(1);
+    });
+    console.log(2);
+  });
+  console.log(3);
+});
+
+// 3
+// 2
+// 1
+```
+
+---
+
+# Best practice tips. Use async functions instead of callbacks.
+
+__Problems with callbacks__:
+
+- Execution order is the opposite of the code order.
+- The code is hard to read.
+- Difficult to run requests in parallel.
+
+ES2015 introduced the concept of a __Promise__ to break the pyramid of doom.
+A Promise represent something that will be available in the future.
+Example of a Promise that will be resolved in 2000 ms:
+
+```ts
+let timeoutPromise = new Promise(function(resolve, reject) {
+  setTimeout(resolve, 2000);
+});
+```
+
+Example of `Promise.all` to execute multiple tasks in parallel:
+
+```ts
+Promise.all([promise1, promise2, promise3]).then((values) => {
+  console.log(values);
+});
+```
+
+???
+- Promise ist, auf Deutsch gesagt, ein Versprechens-Objekt, das später eingelöst wird. Promises werden für asynchrone Berechnungen verwendet.
+- Mit Promise können asynchrone Methoden in gleicher Weise Werte zurück geben, wie synchrone Methoden:
+  Und zwar, anstelle des endgültigen Wertes wird ein Promise zurückgegeben, zu welchem zu einem Zeitpunkt in der Zukunft einen Wert geben wird.
+- Promise.all wird typischerweise für mehrere asynchrone Aufgaben (Tasks), die parallel laufen, verwendet.
+  Alle Tasks liefern Promises als Ergebnisse zurück. Mit Promise.all wird gewartet, bis alle anderen Tasks abgeschlossen sind.
+- "values" ist ein Array von Rückgabewerten, die einzelne Promises bereitstellen, wenn sie resolved sind.
+
+---
+
+# Best practice tips. Use async functions instead of callbacks.
+
+The original code with Promise instead of callbacks:
+
+```ts
+fetch(url1).then(response1 => {
+  return fetch(url2);
+}).then(response2 => {
+  return fetch(url3);
+}).then(response3 => {
+  // ...
+}).catch(error => {
+  // ...
+});
+```
+
+Can we write this better?
+
+Yes. ES2017 introduced the `async` and `await` keywords.
+
+---
+
+# Best practice tips. Use async functions instead of callbacks.
+
+```ts
+async function fetchPages() {
+  try {
+    const response1 = await fetch(url1);
+    const response2 = await fetch(url2);
+    const response3 = await fetch(url3);
+    // ...
+  } catch (e) {
+    // ...
+  }
+}
+```
+
+The `await` keyword pauses execution of the `fetchPages` function until each Promise resolves.
+`async` / `await` allow to write the code in a synchronous manner.
+
+Browser support, see https://caniuse.com/#search=async
+
+???
+- async / await erlauben uns, den Code in einer Weise zu schreiben, wie man diese von einem gewöhnlichen synchronen Programmablauf kennt.
+- await wartet bis der Promise aufgelöst (also resolved) ist. Das Ergebnis kann einer Variable zugewiesen werden, wie beispielsweise hier der Variable "response1".
+- Hat eine Methode ein await, muss sie zwingend mit async annotiert werden. Der Schlüsselwort async steht direkt vor dem Schlüsselwort "function".
+- Dieser Ansatz mit async / await beseitigt auch alle Mankos, die ich bei Callbacks erwähnt habe. Der Code ist viel besser lesbar.
+
+---
 class: center, middle, inverse
     
 # That's all folks, thanks for your attention!
