@@ -3511,6 +3511,115 @@ Browser support, see https://caniuse.com/#search=private%20fields
 ![100%](../images/private-fields.png)
 
 ---
+
+# Best practice tips. Prefer unions of interfaces to interfaces of unions.
+
+If you create an interface whose properties are union types,
+you should ask whether the type would make more sence as union of more precise interfaces
+
+Suppose you're building a drawing program and want to define an interface for layers with specific geometry types.
+
+```ts
+interface Layer {
+  geometry: PointGeometry | LineGeometry | TriangleGeometry
+  style: PointStyle | LineStyle | TriangleStyle
+}
+```
+
+__Question:__ What could be a problem here?
+
+--
+
+__The problem:__ Would it make sence to have a layer whose `geometry` is `LineGeometry` but whose `style` is `TriangleStyle`?
+Obvious not. Allowing this possibility makes using the library more error-prone and makes  this interface difficult to work with.
+
+???
+- Typische WebGL-Geometrie. WebGL kennt nur Points, Lines und Dreickes. Aus diesem werden komplexere Shapes gezeichnet.
+- Styles sind wie Farbe, Grösse, Dicke, u.ä.
+- Zur Frage: Warum weist dieses Inteface eine Designschwäche auf? Der Benutzer dieses Interfaces könnte ungültige Kombination wählen,
+  die keinen Sinn macht. Wie können wir dieses Design verbessern?
+
+---
+
+# Best practice tips. Prefer unions of interfaces to interfaces of unions.
+
+A better way to model this is with separate interfaces for each type of layer:
+
+```ts
+interface PointLayer {
+  geometry: PointGeometry;
+  style: PointStyle;
+}
+
+interface LineLayer {
+  geometry: LineGeometry;
+  style: LineStyle;
+}
+
+interface TriangleLayer {
+  geometry: TriangleGeometry;
+  style: TriangleStyle;
+}
+
+type Layer = PointLayer | LineLayer | TriangleLayer;
+```
+
+__Advantage:__ By defining `Layer` in this way, you've excluded the possibility of mixed `geometry` and `style` properties.
+
+---
+
+# Best practice tips. Prefer unions of interfaces to interfaces of unions.
+
+Even better with a `type` property which can be used to determine which type of `Layer` you're working with at runtime.
+
+```ts
+interface PointLayer {
+  type: 'point';
+  geometry: PointGeometry;
+  style: PointStyle;
+}
+
+interface LineLayer {
+  type: 'point';
+  geometry: LineGeometry;
+  style: LineStyle;
+}
+
+interface TriangleLayer {
+  type: 'point';
+  geometry: TriangleGeometry;
+  style: TriangleStyle;
+}
+
+type Layer = PointLayer | LineLayer | TriangleLayer;
+```
+
+---
+
+# Best practice tips. Prefer unions of interfaces to interfaces of unions.
+
+TypeScript is also able to narrow the type of `Layer` based on the "tag" property `type`.
+
+```ts
+function drawLayer(layer: Layer) {
+  if (layer.type === 'point') {
+    const {geometry} = layer;  // Type is PointGeometry
+    const {style} = layer;     // Type is PointStyle
+  } else if (layer.type === 'line') {
+    const {geometry} = layer;  // Type is LineGeometry
+    const {style} = layer;     // Type is LineStyle
+  } else {
+    const {geometry} = layer;  // Type is TriangleGeometry
+    const {style} = layer;     // Type is TriangleStyle
+  }
+}
+```
+
+???
+Habe gar nicht gefragt, kennt ihr das Gleicheitszeichen mit drei Zeichen? Mit dieser Schreibweise werden auch die Typen verglichen (zu empfehlen).
+Bsp: 0 == false gibt true, aber 0 === false gibt false.
+
+---
 class: center, middle, inverse
     
 # That's all folks, thanks for your attention!
