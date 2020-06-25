@@ -3733,6 +3733,163 @@ Browser support, see https://caniuse.com/#search=async
 - Dieser Ansatz mit async / await beseitigt auch alle Mankos, die ich bei Callbacks erwähnt habe. Der Code ist viel besser lesbar.
 
 ---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+The Strategy pattern is often used in various frameworks to provide users
+a way to change the behavior of a class without extending it. The original object, called context, holds a reference
+to a strategy object and delegates it executing the behavior. In order to change the way the context performs its work,
+other objects may replace the currently linked strategy object with another one.
+
+<img src="../images/strategy-pattern.png" width="80%"/>
+
+---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+```ts
+class Hero {
+  constructor(public name: string, public weapon?: string) {}
+}
+
+class Avengers {
+  private ensemble: Hero[] = [];
+
+  private blast(hero: Hero) {
+    console.log(`${hero.name} blasted ${hero.weapon}`);
+  }
+
+  private kickAndPunch(hero: Hero) {
+    console.log(`${hero.name} kicked and punched`);
+  }
+
+  private shoot(hero: Hero) {
+    console.log(`${hero.name} shot ${hero.weapon}`);
+  }
+
+  ...
+}
+```
+
+???
+Angenommen, wir haben die Klassen Hero und Avangers. Hero hat einen Namen und eine Waffe. Avangers implementiert
+verschiedene Kampfmethoden, die auf einer Hero-Instanz operieren.
+
+---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+```ts
+  fight() {
+    this.ensemble.forEach(hero => this.attack(hero));
+  }
+
+  attack(hero: Hero) {
+    switch(hero.name) {
+      case 'Iron Man':
+        this.blast(hero);
+        break;
+      case 'The Hulk':
+        this.kickAndPunch(hero);
+        break;
+      case 'Black Widow':
+        hero.weapon ? this.shoot(hero) : this.kickAndPunch(hero);
+        break;
+      case 'Hawkeye':
+        this.shoot(hero);
+        break;
+      default:
+        console.warn('Unknown Avenger: ' + hero.name);
+    }
+  }
+```
+
+???
+- Avangers hat auch eine Methode "fight", wo durch Heros iteriert wird und für jeden Hero eine Methode "attack" aufgerufen wird,
+die auch in der Klasse Avangers implementiert ist.
+- Jeder Hero hat natürlich eigene Fähigkeiten zu kämpfen, mit der Waffe, die er hat. Und so müssen wir zuerst den Hero anhand seines Namen
+in der attach-Methode prüfen, (das ist switch-case) Block, um dann entsprechende Methode aufzurufen, die auf dem Hero operiert.
+
+---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+Although it looks OK at first, this class has the following drawbacks:
+
+- It is also difficult to change or remove an existing Hero.
+- Each different attack is just a one-liner here, but consider how difficult to read and maintain Avengers would become,
+  if they were longer and more complex.
+- Avengers has to provide an attack for all heroes, although some of them might not be currently in the ensemble.
+- switch-case block is ugly and long.
+
+Implementation with Strategy-Pattern:
+
+```ts
+abstract class Hero {
+  constructor(public name: string, public weapon?: string) {}
+
+  abstract attack(): void;
+}
+```
+
+???
+Hier bietet sich das Strategy-Pattern.
+
+---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+```ts
+class BlastingHero extends Hero {
+  attack() {
+    console.log(`${this.name} blasted ${this.weapon}.`);
+  }
+}
+
+class ShootingHero extends Hero {
+  attack() {
+    console.log(`${this.name} shot ${this.weapon}.`);
+  }
+}
+
+class UnarmedHero extends Hero {
+  attack() {
+    console.log(`${this.name} kicked and punched.`);
+  }
+}
+
+...
+```
+
+---
+
+# Best practice tips. When and how to use Strategy Pattern.
+
+```ts
+class Avengers {
+  private ensemble: Hero[] = [];
+
+  ...
+
+  fight() {
+    this.ensemble.forEach(hero => hero.attack());
+  }
+}
+```
+
+__Benefit__:
+
+- The switch statement is gone. We no longer need to check a condition to determine what to do next.
+- It is much easier to understand, maintain and test Avengers now.
+- Avengers is now able to switch between available strategies at runtime.
+  In other words, it is now capable of replacing an UnarmedHero with a ShootingHero.
+
+More design patterns: https://refactoring.guru/design-patterns/typescript
+
+???
+Avengers hat noch sicherlich eine add-Methode, um neue Helden zu rekrutieren.
+
+---
 class: center, middle, inverse
     
 # That's all folks, thanks for your attention!
