@@ -59,7 +59,8 @@ __Table of Contents__
   * Optional chaining
   * Nullish coalescing
   * Support for ECMAScript private fields
+  * Static class blocks
+  * _satisfies_ operator
 * Some best practice tips
   * Prefer unions of interfaces to interfaces of unions
   * Use async functions instead of callbacks
-  * When and how to use Strategy Pattern

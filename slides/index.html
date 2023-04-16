@@ -18,7 +18,7 @@ background-image: url(../images/title-folie.jpeg)
 
 .title[
 <br/><br/><br/><br/><br/><br/><br/>
-### Rowing Session at Fincons Group AG, 25.06.2020
+### Rowing Session at Fincons Group AG
 ### Speaker: Oleg Varaksin
 ]
 
@@ -40,7 +40,7 @@ background-image: url(../images/title-folie.jpeg)
 
   - __Current job__: Fullstack Senior Software-Developer / Architect at SBB
   - __Current project__: SmartRail 4.0, TMS-L, real-time GUIs (web and mobile)
-  - __Main interests__: Frontend technologies: JavaScript based web frameworks, TypeScript, Angular, RxJS, WebGL
+  - __Main interests__: Frontend technologies: JavaScript based web frameworks, TypeScript, Angular, RxJS, WebGL, Flutter, Dart
   - __E-mail__: ovaraksin@googlemail.com
   - __GitHub__: https://github.com/ova2
   - __Medium__: https://medium.com/@OlegVaraksin
@@ -48,10 +48,6 @@ background-image: url(../images/title-folie.jpeg)
   - __Books__:
     - <a href="https://packtpub.com/application-development/primefaces-cookbook-second-edition" target="_blank">PrimeFaces Cookbook</a>, Packt Publishing
     - <a href="https://packtpub.com/web-development/angular-ui-development-primeng" target="_blank">Angular UI Development with PrimeNG</a>, Packt Publishing
-
-???
-
-Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-Beispiele aus diesem Buch in dieser Präsentation verwenden.
 
 ---
 
@@ -70,13 +66,6 @@ Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-B
 
 - It can be used on the client as well as server side.
 
-???
-
-- Wir werden noch gleich sehen, in welcher Beziehung TypeScript zu JavaScript steht.
-- Anders Hejlsberg ist der Vater von TS and ist massgebend an der Entwicklung beteiligt (kennt ihr ihn?).
-- zu OO: aber natürlich ist auch möglich, in TS funktional zu programmieren, ohne OOP.
-  TS ist ja ein Superset von JS, wo man normalerweise functional programmiert.
-
 ---
 
 # Main advantages of TypeScript
@@ -93,14 +82,6 @@ Letztes Buch: habe eine kurze Einfrührung in TS gegeben und werde einige Code-B
 
 - Developers feel comfortable with TypeScript due to object-oriented programming patterns, such as interfaces, classes, enums, generics, and so on.
 
-???
-
-- Was heisst "supported out of the box"? TS kompiliert den Code so, dass auch die modernen Features unterstützt werden,
- welche in eurem Browser (wo das Program läuft) nicht unterstützt sind.
-- Auto-completion in einem Projekt demonstrieren.
-- Für die Entwicklugn und Wartung von grossen Projekten ist es von Vorteil, TS zu wählen (als JS).
-- Fazit: Produktivität und die Entwicklungszeit steigen mit TypeScript.
-
 ---
 
 # What is the best way to learn the TypeScript language?
@@ -111,10 +92,6 @@ _Recommended reference sources_
 - <a href="https://basarat.gitbook.io/typescript/">TypeScript Deep Dive by Basarat Ali Syed</a>
 - <a href="https://www.amazon.de/Programming-TypeScript-Boris-Cherny/dp/1492037656/">Book: Programming TypeScript: Making Your JavaScript Applications Scale, written by Boris Cherny</a>
 - <a href="https://www.oreilly.com/library/view/effective-typescript/9781492053736/">Book: Effective TypeScript, written by Dan Vanderkam</a>
-
-_Additional reading_
-
-- <a href="https://mariusschulz.com/blog">Marius Schulz Blog</a>
 - <a href="https://www.oreilly.com/library/view/typescript-design-patterns/9781785280832/">Book: TypeScript Design Patterns, written by Vilic Vane</a>
 - <a href="https://refactoring.guru/design-patterns/typescript">Design Patterns in TypeScript</a>
 
@@ -3246,7 +3223,7 @@ in the `lib.es6.d.ts` or `lib.es2015.d.ts` file.
 
 ---
 
-# Latest TypeScript features. Optional chaining.
+# Latest TypeScript features: optional chaining.
 
 Optional chaining operator __?.__ is a new JavaScript operator, also available in TypeScript.
 Optional chaining lets us write code where TypeScript can immediately stop running some expressions if we run into a `null` or `undefined`.
@@ -3281,7 +3258,7 @@ wenn die Funktion nicht existiert.
 
 ---
 
-# Latest TypeScript features. Optional chaining.
+# Latest TypeScript features: optional chaining.
 
 Note that if `bar` is `null` or `undefined`, the code will still hit an error accessing `baz`. Let's check `bar` too.
 
@@ -3311,7 +3288,7 @@ let result = someClass.someMethod?.();
 
 ---
 
-# Latest TypeScript features. Optional chaining.
+# Latest TypeScript features: optional chaining.
 
 ```ts
 function doSomething(onContent, onError) {
@@ -3338,7 +3315,7 @@ let arrayItem = arr?.[42];
 
 ---
 
-# Latest TypeScript features. Nullish coalescing.
+# Latest TypeScript features: nullish coalescing.
 
 The nullish coalescing operator __??__ is another upcoming ECMAScript feature.
 It is a logical operator that returns its right-hand side operand when its left-hand side operand is null or undefined,
@@ -3359,7 +3336,7 @@ let x = (foo !== null && foo !== undefined) ?
 
 ---
 
-# Latest TypeScript features. Nullish coalescing.
+# Latest TypeScript features: nullish coalescing.
 
 ```ts
 const nullValue = null;
@@ -3385,7 +3362,7 @@ NaN entsteht z.B. durch das Dividiren durch 0.
 
 ---
 
-# Latest TypeScript features. Nullish coalescing.
+# Latest TypeScript features: nullish coalescing.
 
 The `??` operator can replace uses of `||` when trying to use a default value.
 
@@ -3404,7 +3381,7 @@ When `localStorage.volume` is set to `0`, the page will set the volume to `0.5` 
 
 ---
 
-# Latest TypeScript features. Support for ECMAScript private fields.
+# Latest TypeScript features: support for ECMAScript private fields.
 
 TypeScript 3.8 brings support for ECMAScript's private fields. TypeScript's `private` modifier only works at compile time!
 Private fields with the `private` modifier can be accessed in the generated JavaScript at runtime.
@@ -3419,9 +3396,11 @@ Private fields have a few _rules_:
 
 - TypeScript accessibility modifiers like `public` or `private` can't be used on private fields.
 
+Browser support, see https://caniuse.com/#search=private%20fields
+
 ---
 
-# Latest TypeScript features. Support for ECMAScript private fields.
+# Latest TypeScript features: support for ECMAScript private fields.
 
 Example:
 
@@ -3448,7 +3427,7 @@ jeremy.#name
 
 ---
 
-# Latest TypeScript features. Support for ECMAScript private fields.
+# Latest TypeScript features: support for ECMAScript private fields.
 
 Another benefit of private fields is that uniqueness. For example, regular property declarations are prone to being overwritten in subclasses.
 
@@ -3476,7 +3455,7 @@ console.log(instance.dHelper()); // prints '20'
 
 ---
 
-# Latest TypeScript features. Support for ECMAScript private fields.
+# Latest TypeScript features: support for ECMAScript private fields.
 
 With private fields, you'll never have to worry about this, since each field name is unique to the containing class.
 
@@ -3504,11 +3483,70 @@ console.log(instance.dHelper()); // prints '20'
 
 ---
 
-# Latest TypeScript features. Support for ECMAScript private fields.
+# Latest TypeScript features: static class blocks.
 
-Browser support, see https://caniuse.com/#search=private%20fields
+Since TypeScript 4.4 we can use _class static blocks_. This is also an ECMAScript feature since ES2022.
+It's used to write any initialization code for the class (static members).
 
-![100%](../images/private-fields.png)
+```ts
+class Foo {
+  static #count = 0;
+
+  static {
+    if (someCondition()) {
+      Foo.#count++;
+    }
+	console.log(Foo.#count);
+  }
+  
+  #someCondition() {...}
+}
+```
+
+- In class static blocks, you can access all private internals.
+- You can also create multiple static blocks in a class, which will be executed in sequential order.
+
+---
+
+# Latest TypeScript features: _satisfies_ operator.
+
+The _satisfies_ operator exists since TypeScript 4.9. The purpose of this operator is to enforce a constraint on a variable,
+without changing its type. For instance, we want to say that a color is either a string, or a RGB tuple.
+
+```ts
+type RGB = readonly [red: number, green: number, blue: number];
+type Color = { value: RGB | string };
+const aColor: Color = { value: 'red' };
+```
+
+But now, TypeScript doesn't know whether `aColor.value` is a string or a tuple. If we try to call `aColor.value.toUpperCase()`,
+there is an error at compile time (even if the value is a string): __Property 'toUpperCase' does not exist on type 'string | RGB'__.
+
+It works with `satisfies`
+
+```ts
+const aColor = { value: 'red' } satisfies Color;
+aColor.value.toUpperCase();  // works
+```
+
+---
+
+# Latest TypeScript features: _satisfies_ operator.
+
+https://javascript.plainenglish.io/typescript-4-9-satisfies-operator-is-so-useful-5f57e6ef4221
+https://www.builder.io/blog/satisfies-operator
+
+```ts
+
+```
+
+---
+
+# Latest TypeScript features: _satisfies_ operator.
+
+```ts
+
+```
 
 ---
 
@@ -3532,12 +3570,6 @@ __Question:__ What could be a problem here?
 
 __The problem:__ Would it make sence to have a layer whose `geometry` is `LineGeometry` but whose `style` is `TriangleStyle`?
 Obvious not. Allowing this possibility makes using the library more error-prone and makes  this interface difficult to work with.
-
-???
-- Typische WebGL-Geometrie. WebGL kennt nur Points, Lines und Dreickes. Aus diesem werden komplexere Shapes gezeichnet.
-- Styles sind wie Farbe, Grösse, Dicke, u.ä.
-- Zur Frage: Warum weist dieses Inteface eine Designschwäche auf? Der Benutzer dieses Interfaces könnte ungültige Kombination wählen,
-  die keinen Sinn macht. Wie können wir dieses Design verbessern?
 
 ---
 
@@ -3580,13 +3612,13 @@ interface PointLayer {
 }
 
 interface LineLayer {
-  type: 'point';
+  type: 'line';
   geometry: LineGeometry;
   style: LineStyle;
 }
 
 interface TriangleLayer {
-  type: 'point';
+  type: 'triangle';
   geometry: TriangleGeometry;
   style: TriangleStyle;
 }
@@ -3724,6 +3756,9 @@ async function fetchPages() {
 The `await` keyword pauses execution of the `fetchPages` function until each Promise resolves.
 `async` / `await` allow to write the code in a synchronous manner.
 
+Until ES2022 we could only use the `await` operator in an `async` function.
+Since ES2022 we can use this operator in the global scope (at the top level) as well.
+
 Browser support, see https://caniuse.com/#search=async
 
 ???
@@ -3731,163 +3766,6 @@ Browser support, see https://caniuse.com/#search=async
 - await wartet bis der Promise aufgelöst (also resolved) ist. Das Ergebnis kann einer Variable zugewiesen werden, wie beispielsweise hier der Variable "response1".
 - Hat eine Methode ein await, muss sie zwingend mit async annotiert werden. Der Schlüsselwort async steht direkt vor dem Schlüsselwort "function".
 - Dieser Ansatz mit async / await beseitigt auch alle Mankos, die ich bei Callbacks erwähnt habe. Der Code ist viel besser lesbar.
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-The Strategy pattern is often used in various frameworks to provide users
-a way to change the behavior of a class without extending it. The original object, called context, holds a reference
-to a strategy object and delegates it executing the behavior. In order to change the way the context performs its work,
-other objects may replace the currently linked strategy object with another one.
-
-<img src="../images/strategy-pattern.png" width="80%"/>
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-```ts
-class Hero {
-  constructor(public name: string, public weapon?: string) {}
-}
-
-class Avengers {
-  private ensemble: Hero[] = [];
-
-  private blast(hero: Hero) {
-    console.log(`${hero.name} blasted ${hero.weapon}`);
-  }
-
-  private kickAndPunch(hero: Hero) {
-    console.log(`${hero.name} kicked and punched`);
-  }
-
-  private shoot(hero: Hero) {
-    console.log(`${hero.name} shot ${hero.weapon}`);
-  }
-
-  ...
-}
-```
-
-???
-Angenommen, wir haben die Klassen Hero und Avangers. Hero hat einen Namen und eine Waffe. Avangers implementiert
-verschiedene Kampfmethoden, die auf einer Hero-Instanz operieren.
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-```ts
-  fight() {
-    this.ensemble.forEach(hero => this.attack(hero));
-  }
-
-  attack(hero: Hero) {
-    switch(hero.name) {
-      case 'Iron Man':
-        this.blast(hero);
-        break;
-      case 'The Hulk':
-        this.kickAndPunch(hero);
-        break;
-      case 'Black Widow':
-        hero.weapon ? this.shoot(hero) : this.kickAndPunch(hero);
-        break;
-      case 'Hawkeye':
-        this.shoot(hero);
-        break;
-      default:
-        console.warn('Unknown Avenger: ' + hero.name);
-    }
-  }
-```
-
-???
-- Avangers hat auch eine Methode "fight", wo durch Heros iteriert wird und für jeden Hero eine Methode "attack" aufgerufen wird,
-die auch in der Klasse Avangers implementiert ist.
-- Jeder Hero hat natürlich eigene Fähigkeiten zu kämpfen, mit der Waffe, die er hat. Und so müssen wir zuerst den Hero anhand seines Namen
-in der attach-Methode prüfen, (das ist switch-case) Block, um dann entsprechende Methode aufzurufen, die auf dem Hero operiert.
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-Although it looks OK at first, this class has the following drawbacks:
-
-- It is also difficult to change or remove an existing Hero.
-- Each different attack is just a one-liner here, but consider how difficult to read and maintain Avengers would become,
-  if they were longer and more complex.
-- Avengers has to provide an attack for all heroes, although some of them might not be currently in the ensemble.
-- switch-case block is ugly and long.
-
-Implementation with Strategy-Pattern:
-
-```ts
-abstract class Hero {
-  constructor(public name: string, public weapon?: string) {}
-
-  abstract attack(): void;
-}
-```
-
-???
-Hier bietet sich das Strategy-Pattern.
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-```ts
-class BlastingHero extends Hero {
-  attack() {
-    console.log(`${this.name} blasted ${this.weapon}.`);
-  }
-}
-
-class ShootingHero extends Hero {
-  attack() {
-    console.log(`${this.name} shot ${this.weapon}.`);
-  }
-}
-
-class UnarmedHero extends Hero {
-  attack() {
-    console.log(`${this.name} kicked and punched.`);
-  }
-}
-
-...
-```
-
----
-
-# Best practice tips. When and how to use Strategy Pattern.
-
-```ts
-class Avengers {
-  private ensemble: Hero[] = [];
-
-  ...
-
-  fight() {
-    this.ensemble.forEach(hero => hero.attack());
-  }
-}
-```
-
-__Benefit__:
-
-- The switch statement is gone. We no longer need to check a condition to determine what to do next.
-- It is much easier to understand, maintain and test Avengers now.
-- Avengers is now able to switch between available strategies at runtime.
-  In other words, it is now capable of replacing an UnarmedHero with a ShootingHero.
-
-More design patterns: https://refactoring.guru/design-patterns/typescript
-
-???
-Avengers hat noch sicherlich eine add-Methode, um neue Helden zu rekrutieren.
 
 ---
 class: center, middle, inverse
