@@ -3533,25 +3533,46 @@ aColor.value.toUpperCase();  // works
 
 # Latest TypeScript features: _satisfies_ operator.
 
-TODO
-
-https://javascript.plainenglish.io/typescript-4-9-satisfies-operator-is-so-useful-5f57e6ef4221
-https://www.builder.io/blog/satisfies-operator
+Another example from Angular.
 
 ```ts
+type Route = { path: string; children?: Routes }
+type Routes = Record<string, Route>
+const routes: Routes = {
+  HOME: {
+    path: "/home",
+  },
+}
+```
 
+When we go to use the routes object, the compiler has no idea what the actual configured routes are.
+This compiles just fine, but would throw errors at runtime:
+
+```ts
+routes.SOME.path
 ```
 
 ---
 
 # Latest TypeScript features: _satisfies_ operator.
 
-
-TODO
+The solution: combining `satisfies` with `as const`.
 
 ```ts
+const routes = {
+  HOME: { path: '/' }
+} as const satisfies Routes
 
+navigate(routes.HOME.path)
 ```
+
+Type of
+
+```ts
+routes.HOME.path
+```
+
+is now `'/'`. Without `as const` the type would be `string`.
 
 ---
 
